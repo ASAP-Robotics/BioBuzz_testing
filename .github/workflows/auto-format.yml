@@ -1,6 +1,7 @@
 name: Auto-format Java
 
 on:
+  push:
   pull_request:
     branches: [ main ]
 

@@ -1,6 +1,7 @@
 name: Gradle Build Check
 
 on:
+  push:
   pull_request:
     branches: [ main ]
 
