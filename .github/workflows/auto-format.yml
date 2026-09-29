@@ -1,0 +1,66 @@
+name: Auto-format Java
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  google-format:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: '25'
+          distribution: 'temurin'
+
+      - name: Check for Java files
+        id: check_java
+        run: |
+          if git ls-files '*.java' | grep -q .; then
+            echo "found=true" >> $GITHUB_OUTPUT
+          else
+            echo "found=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Run Google Java Format
+        if: steps.check_java.outputs.found == 'true'
+        run: |
+          wget -q https://github.com/google/google-java-format/releases/download/v1.25.2/google-java-format-1.25.2-all-deps.jar
+          java -jar google-java-format-1.25.2-all-deps.jar --replace $(git ls-files '*.java')
+
+      - name: Commit changes if formatting was applied
+        if: steps.check_java.outputs.found == 'true'
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git diff --quiet; then
+            echo "No formatting changes."
+            exit 0
+          fi
+
+          echo "Formatting changes detected. Committing..."
+
+          git add -u
+          git commit -m "Auto-format code"
+
+          # Only push if this is NOT a fork
+          if [ "${{ github.event.pull_request.head.repo.fork }}" = "false" ]; then
+            git pull --rebase origin "${{ github.head_ref }}" || true
+            git push origin HEAD:${{ github.head_ref }} || true
+            echo "Formatting commit pushed."
+          else
+            echo "PR is from a fork. Cannot push changes."
+          fi
+
+          exit 0
