@@ -1,8 +1,4 @@
-/**
- * Copyright 2026 ASAP Robotics (FTC Team 22029).
- * See LICENCE and NOTICE files for more details.
- */
-
+/** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.utils;
 
 import org.jetbrains.annotations.TestOnly;

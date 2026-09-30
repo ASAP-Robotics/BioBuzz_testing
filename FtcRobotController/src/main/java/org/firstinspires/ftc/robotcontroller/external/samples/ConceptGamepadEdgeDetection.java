@@ -52,57 +52,57 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
  */
 
 @Disabled
-@TeleOp(name="Concept: Gamepad Edge Detection", group ="Concept")
+@TeleOp(name = "Concept: Gamepad Edge Detection", group = "Concept")
 public class ConceptGamepadEdgeDetection extends LinearOpMode {
 
-    @Override
-    public void runOpMode() {
-        // Wait for the DS start button to be pressed
-        waitForStart();
+  @Override
+  public void runOpMode() {
+    // Wait for the DS start button to be pressed
+    waitForStart();
 
-        while (opModeIsActive()) {
-            // Update the telemetry
-            telemetryButtonData();
+    while (opModeIsActive()) {
+      // Update the telemetry
+      telemetryButtonData();
 
-            // Wait 2 seconds before doing another check
-            sleep(2000);
-        }
+      // Wait 2 seconds before doing another check
+      sleep(2000);
     }
+  }
 
-    public void telemetryButtonData() {
-        // Add the status of the Gamepad 1 Left Bumper
-        telemetry.addData("Gamepad 1 Left Bumper Pressed", gamepad1.leftBumperWasPressed());
-        telemetry.addData("Gamepad 1 Left Bumper Released", gamepad1.leftBumperWasReleased());
-        telemetry.addData("Gamepad 1 Left Bumper Status", gamepad1.left_bumper);
+  public void telemetryButtonData() {
+    // Add the status of the Gamepad 1 Left Bumper
+    telemetry.addData("Gamepad 1 Left Bumper Pressed", gamepad1.leftBumperWasPressed());
+    telemetry.addData("Gamepad 1 Left Bumper Released", gamepad1.leftBumperWasReleased());
+    telemetry.addData("Gamepad 1 Left Bumper Status", gamepad1.left_bumper);
 
-        // Add an empty line to separate the buttons in telemetry
-        telemetry.addLine();
+    // Add an empty line to separate the buttons in telemetry
+    telemetry.addLine();
 
-        // Add the status of the Gamepad 1 Right Bumper
-        telemetry.addData("Gamepad 1 Right Bumper Pressed", gamepad1.rightBumperWasPressed());
-        telemetry.addData("Gamepad 1 Right Bumper Released", gamepad1.rightBumperWasReleased());
-        telemetry.addData("Gamepad 1 Right Bumper Status", gamepad1.right_bumper);
+    // Add the status of the Gamepad 1 Right Bumper
+    telemetry.addData("Gamepad 1 Right Bumper Pressed", gamepad1.rightBumperWasPressed());
+    telemetry.addData("Gamepad 1 Right Bumper Released", gamepad1.rightBumperWasReleased());
+    telemetry.addData("Gamepad 1 Right Bumper Status", gamepad1.right_bumper);
 
-        // Add an empty line to separate the buttons in telemetry
-        telemetry.addLine();
+    // Add an empty line to separate the buttons in telemetry
+    telemetry.addLine();
 
-        // Add the status of the Gamepad 1 Left trigger
-        telemetry.addData("Gamepad 1 Left Trigger Pressed", gamepad1.leftTriggerWasPressed());
-        telemetry.addData("Gamepad 1 Left Trigger Released", gamepad1.leftTriggerWasReleased());
-        telemetry.addData("Gamepad 1 Left Trigger Status", gamepad1.left_trigger_pressed);
+    // Add the status of the Gamepad 1 Left trigger
+    telemetry.addData("Gamepad 1 Left Trigger Pressed", gamepad1.leftTriggerWasPressed());
+    telemetry.addData("Gamepad 1 Left Trigger Released", gamepad1.leftTriggerWasReleased());
+    telemetry.addData("Gamepad 1 Left Trigger Status", gamepad1.left_trigger_pressed);
 
-        // Add an empty line to separate the buttons in telemetry
-        telemetry.addLine();
+    // Add an empty line to separate the buttons in telemetry
+    telemetry.addLine();
 
-        // Add the status of the Gamepad 1 Right trigger
-        telemetry.addData("Gamepad 1 Right Trigger Pressed", gamepad1.rightTriggerWasPressed());
-        telemetry.addData("Gamepad 1 Right Trigger Released", gamepad1.rightTriggerWasReleased());
-        telemetry.addData("Gamepad 1 Right Trigger Status", gamepad1.right_trigger_pressed);
+    // Add the status of the Gamepad 1 Right trigger
+    telemetry.addData("Gamepad 1 Right Trigger Pressed", gamepad1.rightTriggerWasPressed());
+    telemetry.addData("Gamepad 1 Right Trigger Released", gamepad1.rightTriggerWasReleased());
+    telemetry.addData("Gamepad 1 Right Trigger Status", gamepad1.right_trigger_pressed);
 
-        // Add a note that the telemetry is only updated every 2 seconds
-        telemetry.addLine("\nTelemetry is updated every 2 seconds.");
+    // Add a note that the telemetry is only updated every 2 seconds
+    telemetry.addLine("\nTelemetry is updated every 2 seconds.");
 
-        // Update the telemetry on the DS screen
-        telemetry.update();
-    }
+    // Update the telemetry on the DS screen
+    telemetry.update();
+  }
 }

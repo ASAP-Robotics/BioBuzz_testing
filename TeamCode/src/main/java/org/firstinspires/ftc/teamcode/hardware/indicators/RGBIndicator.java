@@ -1,8 +1,4 @@
-/**
- * Copyright 2026 ASAP Robotics (FTC Team 22029).
- * See LICENCE and NOTICE files for more details.
- */
-
+/** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.hardware.indicators;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;

@@ -29,21 +29,18 @@
 
 package org.firstinspires.ftc.robotcontroller.external.samples;
 
-import android.util.Size;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import java.util.List;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.BuiltinCameraDirection;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.CameraCompatibilityManager;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.robotcore.internal.usb.UsbConstants;
 import org.firstinspires.ftc.vision.VisionPortal;
 import org.firstinspires.ftc.vision.apriltag.AprilTagClusterDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagDetection;
 import org.firstinspires.ftc.vision.apriltag.AprilTagProcessor;
 import org.firstinspires.ftc.vision.apriltag.AprilTagSingleDetection;
-
-import java.util.List;
 
 /*
  * This OpMode illustrates the basics of AprilTag recognition and pose estimation,
@@ -73,182 +70,193 @@ import java.util.List;
 @Disabled
 public class ConceptAprilTag extends LinearOpMode {
 
-    private static final boolean USE_WEBCAM = true;  // true for webcam, false for phone camera
+  private static final boolean USE_WEBCAM = true; // true for webcam, false for phone camera
 
-    /**
-     * The variable to store our instance of the AprilTag processor.
-     */
-    private AprilTagProcessor aprilTag;
+  /** The variable to store our instance of the AprilTag processor. */
+  private AprilTagProcessor aprilTag;
 
-    /**
-     * The variable to store our instance of the vision portal.
-     */
-    private VisionPortal visionPortal;
+  /** The variable to store our instance of the vision portal. */
+  private VisionPortal visionPortal;
 
-    // To find the VID/PID for a camera:
-    //
-    // Linux: open a terminal, run "lsusb", locate the line for your camera,
-    // and find the section that resembles "ID 1d6b:0002"; this is VID:PID
-    //
-    // OSX: open a terminal, run "system_profiler SPUSBDataType", locate the
-    // section for your camera, and find the "Product ID:" and "Vendor ID:"
-    // listings in the output
-    //
-    // Windows: open a PowerShell, run:
-    // Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -like 'USB*' } | Select-Object FriendlyName, InstanceId
-    // and locate the line for your camera. The VID and PID is listed directly in the line.
-    static final int VENDOR_ID_SUNPLUS_INNOVATION_TECHNOLOGY = 0x1BCF;
-    static final int PRODUCT_ID_ARDUCAM_OV5648 = 0x284C;
+  // To find the VID/PID for a camera:
+  //
+  // Linux: open a terminal, run "lsusb", locate the line for your camera,
+  // and find the section that resembles "ID 1d6b:0002"; this is VID:PID
+  //
+  // OSX: open a terminal, run "system_profiler SPUSBDataType", locate the
+  // section for your camera, and find the "Product ID:" and "Vendor ID:"
+  // listings in the output
+  //
+  // Windows: open a PowerShell, run:
+  // Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -like 'USB*' } | Select-Object
+  // FriendlyName, InstanceId
+  // and locate the line for your camera. The VID and PID is listed directly in the line.
+  static final int VENDOR_ID_SUNPLUS_INNOVATION_TECHNOLOGY = 0x1BCF;
+  static final int PRODUCT_ID_ARDUCAM_OV5648 = 0x284C;
 
-    @Override
-    public void runOpMode() {
+  @Override
+  public void runOpMode() {
 
-        // Demonstrate how to add a camera compatibility quirk
-        // these can sometimes be needed if a camera behaves poorly.
-        // Quirks have no effect unless the camera you are using matches the specified VID/PID
-        CameraCompatibilityManager.getInstance()
-                .addQuirk(
-                        VENDOR_ID_SUNPLUS_INNOVATION_TECHNOLOGY,
-                        PRODUCT_ID_ARDUCAM_OV5648,
-                        CameraCompatibilityManager.Quirk.AVOID_LIB_USB_RESET_DEVICE);
+    // Demonstrate how to add a camera compatibility quirk
+    // these can sometimes be needed if a camera behaves poorly.
+    // Quirks have no effect unless the camera you are using matches the specified VID/PID
+    CameraCompatibilityManager.getInstance()
+        .addQuirk(
+            VENDOR_ID_SUNPLUS_INNOVATION_TECHNOLOGY,
+            PRODUCT_ID_ARDUCAM_OV5648,
+            CameraCompatibilityManager.Quirk.AVOID_LIB_USB_RESET_DEVICE);
 
-        initAprilTag();
+    initAprilTag();
 
-        // Wait for the DS start button to be touched.
-        telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
-        telemetry.addData(">", "Touch START to start OpMode");
-        telemetry.update();
-        waitForStart();
+    // Wait for the DS start button to be touched.
+    telemetry.addData("DS preview on/off", "3 dots, Camera Stream");
+    telemetry.addData(">", "Touch START to start OpMode");
+    telemetry.update();
+    waitForStart();
 
-        while (opModeIsActive()) {
+    while (opModeIsActive()) {
 
-            telemetryAprilTag();
+      telemetryAprilTag();
 
-            // Push telemetry to the Driver Station.
-            telemetry.update();
+      // Push telemetry to the Driver Station.
+      telemetry.update();
 
-            // Save CPU resources; can resume streaming when needed.
-            if (gamepad1.dpad_down) {
-                visionPortal.stopStreaming();
-            } else if (gamepad1.dpad_up) {
-                visionPortal.resumeStreaming();
-            }
+      // Save CPU resources; can resume streaming when needed.
+      if (gamepad1.dpad_down) {
+        visionPortal.stopStreaming();
+      } else if (gamepad1.dpad_up) {
+        visionPortal.resumeStreaming();
+      }
 
-            // Share the CPU.
-            sleep(20);
-        }
+      // Share the CPU.
+      sleep(20);
+    }
 
-        // Save more CPU resources when camera is no longer needed.
-        visionPortal.close();
+    // Save more CPU resources when camera is no longer needed.
+    visionPortal.close();
+  } // end method runOpMode()
 
-    }   // end method runOpMode()
+  /** Initialize the AprilTag processor. */
+  private void initAprilTag() {
 
-    /**
-     * Initialize the AprilTag processor.
-     */
-    private void initAprilTag() {
-
-        // Create the AprilTag processor.
-        aprilTag = new AprilTagProcessor.Builder()
+    // Create the AprilTag processor.
+    aprilTag =
+        new AprilTagProcessor.Builder()
 
             // The following default settings are available to un-comment and edit as needed.
-            //.setDrawAxes(true) // Changed in V12.0
-            //.setDrawTagOutline(true)
-            //.setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
-            //.setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
-            //.setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
-            //.setDrawCubeProjection(false)
+            // .setDrawAxes(true) // Changed in V12.0
+            // .setDrawTagOutline(true)
+            // .setTagFamily(AprilTagProcessor.TagFamily.TAG_36h11)
+            // .setTagLibrary(AprilTagGameDatabase.getCenterStageTagLibrary())
+            // .setOutputUnits(DistanceUnit.INCH, AngleUnit.DEGREES)
+            // .setDrawCubeProjection(false)
 
             // == CAMERA CALIBRATION ==
             // If you do not manually specify calibration parameters, the SDK will attempt
             // to load a predefined calibration for your camera.
-            //.setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
+            // .setLensIntrinsics(578.272, 578.272, 402.145, 221.506)
             // ... these parameters are fx, fy, cx, cy.
 
             .build();
 
-        // Adjust Image Decimation to trade-off detection-range for detection-rate.
-        // eg: Some typical detection data using a Logitech C920 WebCam
-        // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
-        // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
-        // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
-        // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
-        // Note: Decimation can be changed on-the-fly to adapt during a match.
-        //aprilTag.setDecimation(3);
+    // Adjust Image Decimation to trade-off detection-range for detection-rate.
+    // eg: Some typical detection data using a Logitech C920 WebCam
+    // Decimation = 1 ..  Detect 2" Tag from 10 feet away at 10 Frames per second
+    // Decimation = 2 ..  Detect 2" Tag from 6  feet away at 22 Frames per second
+    // Decimation = 3 ..  Detect 2" Tag from 4  feet away at 30 Frames Per Second (default)
+    // Decimation = 3 ..  Detect 5" Tag from 10 feet away at 30 Frames Per Second (default)
+    // Note: Decimation can be changed on-the-fly to adapt during a match.
+    // aprilTag.setDecimation(3);
 
-        // Create the vision portal by using a builder.
-        VisionPortal.Builder builder = new VisionPortal.Builder();
+    // Create the vision portal by using a builder.
+    VisionPortal.Builder builder = new VisionPortal.Builder();
 
-        // Set the camera (webcam vs. built-in RC phone camera).
-        if (USE_WEBCAM) {
-            builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+    // Set the camera (webcam vs. built-in RC phone camera).
+    if (USE_WEBCAM) {
+      builder.setCamera(hardwareMap.get(WebcamName.class, "Webcam 1"));
+    } else {
+      builder.setCamera(BuiltinCameraDirection.BACK);
+    }
+
+    // Choose a camera resolution. Not all cameras support all resolutions.
+    // builder.setCameraResolution(new Size(640, 480));
+
+    // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
+    // builder.enableLiveView(true);
+
+    // Set the stream format; MJPEG uses less bandwidth than default YUY2.
+    // builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
+
+    // Choose whether or not LiveView stops if no processors are enabled.
+    // If set "true", monitor shows solid orange screen if no processors enabled.
+    // If set "false", monitor shows camera view without annotations.
+    // builder.setAutoStopLiveView(false);
+
+    // Set and enable the processor.
+    builder.addProcessor(aprilTag);
+
+    // Build the Vision Portal, using the above settings.
+    visionPortal = builder.build();
+
+    // Disable or re-enable the aprilTag processor at any time.
+    // visionPortal.setProcessorEnabled(aprilTag, true);
+
+  } // end method initAprilTag()
+
+  /** Add telemetry about AprilTag detections. */
+  private void telemetryAprilTag() {
+
+    List<AprilTagDetection> currentDetections = aprilTag.getDetections();
+    telemetry.addData("# AprilTags Detected", currentDetections.size());
+
+    // Step through the list of detections and display info for each one.
+    for (AprilTagDetection detection : currentDetections) {
+      if (detection instanceof AprilTagSingleDetection) {
+        AprilTagSingleDetection singleDet = (AprilTagSingleDetection) detection;
+
+        if (singleDet.metadata != null) {
+          telemetry.addLine(
+              String.format("\n==== (ID %d) %s", singleDet.id, singleDet.metadata.name));
+          telemetry.addLine(
+              String.format(
+                  "XYZ %6.1f %6.1f %6.1f  (inch)",
+                  detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+          telemetry.addLine(
+              String.format(
+                  "PRY %6.1f %6.1f %6.1f  (deg)",
+                  detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+          telemetry.addLine(
+              String.format(
+                  "RBE %6.1f %6.1f %6.1f  (inch, deg, deg)",
+                  detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
         } else {
-            builder.setCamera(BuiltinCameraDirection.BACK);
+          telemetry.addLine(String.format("\n==== (ID %d) Unknown", singleDet.id));
+          telemetry.addLine(
+              String.format(
+                  "Center %6.0f %6.0f   (pixels)", singleDet.center.x, singleDet.center.y));
         }
+      } else {
+        AprilTagClusterDetection clusterDet = (AprilTagClusterDetection) detection;
+        telemetry.addLine(String.format("\n==== Tag Cluster (%s)", clusterDet.metadata.name));
+        telemetry.addLine(String.format("Percent tags found: %d", clusterDet.percentClusterFound));
+        telemetry.addLine(
+            String.format(
+                "XYZ %6.1f %6.1f %6.1f  (inch)",
+                detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
+        telemetry.addLine(
+            String.format(
+                "PRY %6.1f %6.1f %6.1f  (deg)",
+                detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
+        telemetry.addLine(
+            String.format(
+                "RBE %6.1f %6.1f %6.1f  (inch, deg, deg)",
+                detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
+      }
+    } // end for() loop
 
-        // Choose a camera resolution. Not all cameras support all resolutions.
-        //builder.setCameraResolution(new Size(640, 480));
-
-        // Enable the RC preview (LiveView).  Set "false" to omit camera monitoring.
-        //builder.enableLiveView(true);
-
-        // Set the stream format; MJPEG uses less bandwidth than default YUY2.
-        //builder.setStreamFormat(VisionPortal.StreamFormat.YUY2);
-
-        // Choose whether or not LiveView stops if no processors are enabled.
-        // If set "true", monitor shows solid orange screen if no processors enabled.
-        // If set "false", monitor shows camera view without annotations.
-        //builder.setAutoStopLiveView(false);
-
-        // Set and enable the processor.
-        builder.addProcessor(aprilTag);
-
-        // Build the Vision Portal, using the above settings.
-        visionPortal = builder.build();
-
-        // Disable or re-enable the aprilTag processor at any time.
-        //visionPortal.setProcessorEnabled(aprilTag, true);
-
-    }   // end method initAprilTag()
-
-
-    /**
-     * Add telemetry about AprilTag detections.
-     */
-    private void telemetryAprilTag() {
-
-        List<AprilTagDetection> currentDetections = aprilTag.getDetections();
-        telemetry.addData("# AprilTags Detected", currentDetections.size());
-
-        // Step through the list of detections and display info for each one.
-        for (AprilTagDetection detection : currentDetections) {
-            if (detection instanceof AprilTagSingleDetection) {
-                AprilTagSingleDetection singleDet = (AprilTagSingleDetection) detection;
-
-                if (singleDet.metadata != null) {
-                    telemetry.addLine(String.format("\n==== (ID %d) %s", singleDet.id, singleDet.metadata.name));
-                    telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                    telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                    telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-                } else {
-                    telemetry.addLine(String.format("\n==== (ID %d) Unknown", singleDet.id));
-                    telemetry.addLine(String.format("Center %6.0f %6.0f   (pixels)", singleDet.center.x, singleDet.center.y));
-                }
-            } else {
-                AprilTagClusterDetection clusterDet = (AprilTagClusterDetection) detection;
-                telemetry.addLine(String.format("\n==== Tag Cluster (%s)", clusterDet.metadata.name));
-                telemetry.addLine(String.format("Percent tags found: %d", clusterDet.percentClusterFound));
-                telemetry.addLine(String.format("XYZ %6.1f %6.1f %6.1f  (inch)", detection.ftcPose.x, detection.ftcPose.y, detection.ftcPose.z));
-                telemetry.addLine(String.format("PRY %6.1f %6.1f %6.1f  (deg)", detection.ftcPose.pitch, detection.ftcPose.roll, detection.ftcPose.yaw));
-                telemetry.addLine(String.format("RBE %6.1f %6.1f %6.1f  (inch, deg, deg)", detection.ftcPose.range, detection.ftcPose.bearing, detection.ftcPose.elevation));
-            }
-        }   // end for() loop
-
-        // Add "key" information to telemetry
-        telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
-        telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
-        telemetry.addLine("RBE = Range, Bearing & Elevation");
-
-    }   // end method telemetryAprilTag()
-
-}   // end class
+    // Add "key" information to telemetry
+    telemetry.addLine("\nkey:\nXYZ = X (Right), Y (Forward), Z (Up) dist.");
+    telemetry.addLine("PRY = Pitch, Roll & Yaw (XYZ Rotation)");
+    telemetry.addLine("RBE = Range, Bearing & Elevation");
+  } // end method telemetryAprilTag()
+} // end class
