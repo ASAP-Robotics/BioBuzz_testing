@@ -2,7 +2,6 @@ name: Auto-format Java
 
 on:
   push:
-    branches: [ main, develop, master ]
   pull_request:
     branches: [ main ]
 
