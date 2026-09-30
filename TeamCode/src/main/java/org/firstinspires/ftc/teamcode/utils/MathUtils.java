@@ -1,8 +1,7 @@
 /**
- * Copyright 2025-2026 ASAP Robotics (FTC Team 22029).
- * See LICENCE and NOTICE files for more details.
+ * Copyright 2025-2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more
+ * details.
  */
-
 package org.firstinspires.ftc.teamcode.utils;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
