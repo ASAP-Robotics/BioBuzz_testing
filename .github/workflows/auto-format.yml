@@ -2,8 +2,9 @@ name: Auto-format Java
 
 on:
   push:
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
   google-format:
