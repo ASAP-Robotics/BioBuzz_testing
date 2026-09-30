@@ -59,8 +59,18 @@ jobs:
           git commit -m "Auto-format code"
           git push origin HEAD:${{ github.head_ref }}
 
+      - name: Check if formatting changes were made
+        id: check_format
+        if: steps.check_java.outputs.found == 'true'
+        run: |
+          if git diff --quiet; then
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+          fi
+
       - name: Comment on fork PR about formatting
-        if: steps.check_java.outputs.found == 'true' && github.event.pull_request.head.repo.full_name != github.repository && ! git diff --quiet
+        if: steps.check_java.outputs.found == 'true' && github.event.pull_request.head.repo.full_name != github.repository && steps.check_format.outputs.has_changes == 'true'
         uses: actions/github-script@v7
         with:
           script: |
