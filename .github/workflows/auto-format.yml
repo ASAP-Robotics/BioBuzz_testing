@@ -2,6 +2,7 @@ name: Auto-format Java
 
 on:
   push:
+    branches: [ main, develop, master ]
   pull_request:
     branches: [ main ]
 
@@ -10,13 +11,16 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      pull-requests: write
 
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
-          repository: ${{ github.event.pull_request.head.repo.full_name }}
+          # For PRs from forks, checkout the PR's source branch
+          ref: ${{ github.event.pull_request.head.ref || github.ref }}
+          repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0
 
       - name: Set up JDK
         uses: actions/setup-java@v5
@@ -39,8 +43,8 @@ jobs:
           wget -q https://github.com/google/google-java-format/releases/download/v1.25.2/google-java-format-1.25.2-all-deps.jar
           java -jar google-java-format-1.25.2-all-deps.jar --replace $(git ls-files '*.java')
 
-      - name: Commit changes if formatting was applied
-        if: steps.check_java.outputs.found == 'true'
+      - name: Commit and push formatting changes (non-fork PR)
+        if: steps.check_java.outputs.found == 'true' && github.event.pull_request.head.repo.full_name == github.repository
         run: |
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
@@ -51,17 +55,18 @@ jobs:
           fi
 
           echo "Formatting changes detected. Committing..."
-
           git add -u
           git commit -m "Auto-format code"
+          git push origin HEAD:${{ github.head_ref }}
 
-          # Only push if this is NOT a fork
-          if [ "${{ github.event.pull_request.head.repo.fork }}" = "false" ]; then
-            git pull --rebase origin "${{ github.head_ref }}" || true
-            git push origin HEAD:${{ github.head_ref }} || true
-            echo "Formatting commit pushed."
-          else
-            echo "PR is from a fork. Cannot push changes."
-          fi
-
-          exit 0
+      - name: Comment on fork PR about formatting
+        if: steps.check_java.outputs.found == 'true' && github.event.pull_request.head.repo.full_name != github.repository && ! git diff --quiet
+        uses: actions/github-script@v7
+        with:
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ This PR has Java code formatting issues. Please run `google-java-format` locally and push the changes.'
+            })
