@@ -2,7 +2,7 @@
 package org.firstinspires.ftc.teamcode.types;
 
 /**
- * @brief simple enum to represent the operational status of systems
+ * Simple enum to represent the operational status of robot systems
  */
 public enum SystemStatus {
   NOMINAL(0),

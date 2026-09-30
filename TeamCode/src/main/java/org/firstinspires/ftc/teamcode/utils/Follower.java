@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
- * @brief simple class to model a system where a value moves to a target linearly over time
+ * Simple class to model a system where a value moves to a target linearly over time
  */
 public class Follower {
   protected double target; // the target position of the modeled system
@@ -14,7 +14,8 @@ public class Follower {
   protected ElapsedTime updateTime; // the time since the last update
 
   /**
-   * @brief makes a new Follower
+   * Makes a new Follower
+   *
    * @param value the initial value of the modeled system
    * @param target the initial target of the modeled system
    * @param tolerance the amount the value can differ from the target and be "at target"
@@ -29,7 +30,8 @@ public class Follower {
   }
 
   /**
-   * @brief gets the tolerance of the modeled system
+   * Gets the tolerance of the modeled system
+   *
    * @return the tolerance of the system
    */
   public double getTolerance() {
@@ -37,7 +39,8 @@ public class Follower {
   }
 
   /**
-   * @brief sets the target value of the modeled system
+   * Sets the target value of the modeled system
+   *
    * @param target the target value of the modeled system
    */
   public void setTarget(double target) {
@@ -45,7 +48,8 @@ public class Follower {
   }
 
   /**
-   * @brief gets the target value of the modeled system
+   * Gets the target value of the modeled system
+   *
    * @return the target value of the system
    */
   public double getTarget() {
@@ -53,7 +57,8 @@ public class Follower {
   }
 
   /**
-   * @brief gets if the modeled system is at it's target value
+   * Gets if the modeled system is at its target value
+   *
    * @return true if at target, false otherwise
    */
   public boolean isAtTarget() {
@@ -63,7 +68,7 @@ public class Follower {
   /**
    * Overrides the value of the modeled system
    *
-   * @note this is an advanced feature, and usually isn't needed. use with discretion
+   * @apiNote this is an advanced feature, and usually isn't needed. use with discretion
    * @param value the new value of the modeled system
    */
   public void setValue(double value) {
@@ -71,7 +76,8 @@ public class Follower {
   }
 
   /**
-   * @brief gets the current value of the system
+   * Gets the current value of the system
+   *
    * @return the current value of the system
    */
   public double getValue() {
@@ -80,7 +86,7 @@ public class Follower {
   }
 
   /**
-   * @brief updates the current value of the modeled system
+   * Updates the current value of the modeled system
    */
   protected void update() {
     double deltaTime = updateTime.seconds();

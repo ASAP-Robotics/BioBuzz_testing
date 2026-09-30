@@ -7,8 +7,9 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 /**
- * @brief class to model a simple timer
- * @note use judiciously
+ * Class to model a simple timer
+ *
+ * @apiNote use judiciously, often using raw ElapsedTime objects can be better
  */
 public class SimpleTimer {
   private final ElapsedTime timer = new ElapsedTime();
@@ -24,7 +25,7 @@ public class SimpleTimer {
   }
 
   /**
-   * @brief start or restart the timer
+   * Start or restart the timer
    */
   public void start() {
     timer.reset();
@@ -32,20 +33,20 @@ public class SimpleTimer {
   }
 
   /**
-   * @brief start or restart the timer with a set duration
+   * Start or restart the timer with a set duration
    */
   public void start(double durationSeconds) {
     this.duration = durationSeconds;
     start();
   }
 
-  /** stop the timer */
+  /** Stop the timer */
   public void stop() {
     running = false;
   }
 
   /**
-   * @brief call each loop to update the timer
+   * Call each loop to update the timer
    */
   public void update() {
     if (running && timer.seconds() >= duration) {
@@ -54,7 +55,8 @@ public class SimpleTimer {
   }
 
   /**
-   * @brief returns if the timer is running
+   * Returns if the timer is running
+   *
    * @return true if the timer is running, false if the timer isn't running
    */
   public boolean isRunning() {
@@ -63,7 +65,8 @@ public class SimpleTimer {
   }
 
   /**
-   * @brief returns if the timer is done
+   * Returns if the timer is done
+   *
    * @return true if the timer is done, false if the timer isn't done
    */
   public boolean isFinished() {
@@ -72,7 +75,8 @@ public class SimpleTimer {
   }
 
   /**
-   * @brief returns time since the timer was started
+   * Returns time since the timer was started
+   *
    * @return the elapsed time since the timer was started
    */
   public double elapsed() {
@@ -81,7 +85,8 @@ public class SimpleTimer {
   }
 
   /**
-   * @brief returns the time left on the timer
+   * Returns the time left on the timer
+   *
    * @return the amount of time left on the timer, or 0 if finished
    */
   public double remaining() {

@@ -123,7 +123,7 @@ public class Axon implements System {
    * Gets the target position of the servo
    *
    * @return the target position of the servo, or 0 if it hasn't been set yet
-   * @note this method doesn't return the *current position*, it returns the *target position*
+   * @apiNote this method doesn't return the *current position*, it returns the *target position*
    */
   public double getTargetPosition() {
     return targetPositionDegrees;
@@ -133,7 +133,7 @@ public class Axon implements System {
    * Reads the current position of the servo
    *
    * @return the current position of the servo, in degrees (from 0 to 360)
-   * @note if this servo is a dummy this will always return 0
+   * @apiNote if this servo is a dummy this will always return 0
    */
   public double getPosition() {
     if (dummy) return 0; // if dummy we can't get position
@@ -145,7 +145,7 @@ public class Axon implements System {
    * Gets if the servo is currently within tolerance of its target
    *
    * @return true if the servo is at its target, false if it isn't at its target
-   * @note if this servo is a dummy this will always return true
+   * @apiNote if this servo is a dummy this will always return true
    */
   public boolean atTarget() {
     if (dummy) return true; // dummy servos are always at target

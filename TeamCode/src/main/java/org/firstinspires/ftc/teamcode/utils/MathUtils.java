@@ -9,13 +9,14 @@ import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
 /**
- * @brief class containing miscellaneous math utilities
+ * Class containing miscellaneous math utilities
  */
 public class MathUtils {
   public static final double COMPARISON_THRESHOLD = 1e-6;
 
   /**
-   * @brief maps a number from one range to another
+   * Maps a number from one range to another
+   *
    * @param x the number to map
    * @param inMin the minimum of the input range
    * @param inMax the maximum of the input range
@@ -28,7 +29,8 @@ public class MathUtils {
   }
 
   /**
-   * @brief clamps a given value between a min and max
+   * Clamps a given value between a min and max
+   *
    * @param val the value to clamp
    * @param min the minimum value
    * @param max the maximum value
@@ -39,7 +41,8 @@ public class MathUtils {
   }
 
   /**
-   * @brief finds the closest value to `input` that is equal to `desired` modulo `offset`
+   * Finds the closest value to `input` that is equal to `desired` modulo `offset`
+   *
    * @param input the initial, unadjusted input value
    * @param desired the value we want to be close to
    * @param offset the size of offset steps
@@ -56,7 +59,7 @@ public class MathUtils {
    * @param angle the angle to normalize
    * @param center the angle to normalize around
    * @return the normalized angle
-   * @note units in degrees
+   * @apiNote units are in degrees
    */
   public static double normalizeAround(double angle, double center) {
     return AngleUnit.normalizeDegrees(angle - center) + center;

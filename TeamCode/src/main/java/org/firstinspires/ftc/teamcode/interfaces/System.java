@@ -4,11 +4,12 @@ package org.firstinspires.ftc.teamcode.interfaces;
 import org.firstinspires.ftc.teamcode.types.SystemReport;
 
 /**
- * @brief interface for systems that can report a status
+ * Interface for systems that can report an operational status
  */
 public interface System {
   /**
-   * @brief gets the operational status of the system
+   * Gets the operational status of the system
+   *
    * @return the status of the system
    */
   SystemReport getStatus();
