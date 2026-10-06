@@ -48,8 +48,8 @@ public class RGBIndicator {
    * Creates a new RGBIndicator object
    *
    * @param led a Servo object that represents the indicator light
-   * @implNote since GoBILDAs RGB indicators are controlled by a PWM output meant for servos, we
-   * use a Servo object to control the light (hence the type passed here)
+   * @implNote since GoBILDAs RGB indicators are controlled by a PWM output meant for servos, we use
+   *     a Servo object to control the light (hence the type passed here)
    */
   public RGBIndicator(Servo led) {
     this.led = led;
@@ -58,7 +58,8 @@ public class RGBIndicator {
   /**
    * Update the indicator light
    *
-   * @apiNote this should be called every loop; the color of the light won't change if this method isn't called
+   * @apiNote this should be called every loop; the color of the light won't change if this method
+   *     isn't called
    */
   public void update() {
     if (atColor) return;

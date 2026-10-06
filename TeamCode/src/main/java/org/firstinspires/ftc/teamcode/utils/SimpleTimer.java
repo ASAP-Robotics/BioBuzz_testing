@@ -24,17 +24,13 @@ public class SimpleTimer {
     this.duration = durationSeconds;
   }
 
-  /**
-   * Start or restart the timer
-   */
+  /** Start or restart the timer */
   public void start() {
     timer.reset();
     running = true;
   }
 
-  /**
-   * Start or restart the timer with a set duration
-   */
+  /** Start or restart the timer with a set duration */
   public void start(double durationSeconds) {
     this.duration = durationSeconds;
     start();
@@ -45,9 +41,7 @@ public class SimpleTimer {
     running = false;
   }
 
-  /**
-   * Call each loop to update the timer
-   */
+  /** Call each loop to update the timer */
   public void update() {
     if (running && timer.seconds() >= duration) {
       running = false; // auto-stop when done

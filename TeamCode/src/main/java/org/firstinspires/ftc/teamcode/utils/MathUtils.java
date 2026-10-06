@@ -8,9 +8,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.Pose2D;
 
-/**
- * Class containing miscellaneous math utilities
- */
+/** Class containing miscellaneous math utilities */
 public class MathUtils {
   public static final double COMPARISON_THRESHOLD = 1e-6;
 

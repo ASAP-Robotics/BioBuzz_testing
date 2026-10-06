@@ -20,4 +20,6 @@ dependencies {
     implementation 'com.pedropathing:tuning:1.0.1'
 
     implementation 'com.acmerobotics.dashboard:dashboard:0.6.0'
+
+    implementation 'org.ftclib.ftclib:core:2.1.1'
 }
