@@ -3,9 +3,7 @@ package org.firstinspires.ftc.teamcode.utils;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 
-/**
- * Simple class to model a system where a value moves to a target linearly over time
- */
+/** Simple class to model a system where a value moves to a target linearly over time */
 public class Follower {
   protected double target; // the target position of the modeled system
   protected double value; // the current position of the modeled system
@@ -85,9 +83,7 @@ public class Follower {
     return value;
   }
 
-  /**
-   * Updates the current value of the modeled system
-   */
+  /** Updates the current value of the modeled system */
   protected void update() {
     double deltaTime = updateTime.seconds();
     updateTime.reset();

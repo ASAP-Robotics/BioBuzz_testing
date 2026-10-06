@@ -3,9 +3,7 @@ package org.firstinspires.ftc.teamcode.interfaces;
 
 import org.firstinspires.ftc.teamcode.types.SystemReport;
 
-/**
- * Interface for systems that can report an operational status
- */
+/** Interface for systems that can report an operational status */
 public interface System {
   /**
    * Gets the operational status of the system

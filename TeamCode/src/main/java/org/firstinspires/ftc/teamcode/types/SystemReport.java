@@ -1,9 +1,7 @@
 /** Copyright 2025 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.types;
 
-/**
- * Simple class to standardize status reports from robot systems
- */
+/** Simple class to standardize status reports from robot systems */
 public class SystemReport {
   public final SystemStatus status;
   public final String message;
