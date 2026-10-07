@@ -6,6 +6,7 @@ package org.firstinspires.ftc.teamcode.hardware.servos;
 
 import static java.lang.Math.max;
 import static java.lang.Math.min;
+import static org.firstinspires.ftc.teamcode.constants.UpdateTolerance.SERVO_UPDATE_TOLERANCE_DEGREES;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.map;
 
 import com.qualcomm.robotcore.hardware.AnalogInput;
@@ -18,8 +19,6 @@ import org.firstinspires.ftc.teamcode.utils.Follower;
 
 /** Wrapper around the `Servo` class to add encoder feedback and rudimentary fault detection */
 public class Axon implements System {
-  private static final double UPDATE_TOLERANCE_DEGREES = 0.5; // amount setpoint has to change by to
-  // actually set servo
   private SystemStatus status = SystemStatus.NOMINAL; // the status of the servo
   private final Follower follower; // backup follower to model servo movement if encoder fails
   private final Servo servo; // the servo being controlled
@@ -113,7 +112,7 @@ public class Axon implements System {
    * @param degrees the target position of the servo, in degrees
    */
   public void setPosition(double degrees) {
-    if (Math.abs(targetPositionDegrees - degrees) < UPDATE_TOLERANCE_DEGREES) return;
+    if (Math.abs(targetPositionDegrees - degrees) < SERVO_UPDATE_TOLERANCE_DEGREES) return;
     if (!dummy) follower.setTarget(degrees);
     targetPositionDegrees = degrees;
     servo.setPosition(degrees / 360);
