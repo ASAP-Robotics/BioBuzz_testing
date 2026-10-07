@@ -1,6 +1,8 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.hardware.indicators;
 
+import static org.firstinspires.ftc.teamcode.constants.UpdateTolerance.SERVO_UPDATE_TOLERANCE;
+
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.utils.Follower;
@@ -27,7 +29,6 @@ public class RGBIndicator {
     }
   }
 
-  private static final double UPDATE_TOLERANCE = 0.01;
   private final Servo led; // light is controlled by servo PWM control
   private final Follower follower = new Follower(0, 0, 0, 1.0);
   private Color color = null;
@@ -65,7 +66,7 @@ public class RGBIndicator {
     if (atColor) return;
     double value = follower.getValue();
 
-    if (Math.abs(value - lastSetValue) > UPDATE_TOLERANCE) {
+    if (Math.abs(value - lastSetValue) > SERVO_UPDATE_TOLERANCE) {
       led.setPosition(value);
       lastSetValue = value;
     }
