@@ -1,14 +1,21 @@
-/** Copyright 2025 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
+/** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
+
 package org.firstinspires.ftc.teamcode.interfaces;
 
-import org.firstinspires.ftc.teamcode.types.SystemReport;
-
-/** Interface for systems that can report an operational status */
+/** Interface for systems */
 public interface System {
-  /**
-   * Gets the operational status of the system
-   *
-   * @return the status of the system
-   */
-  SystemReport getStatus();
+  /** to be called on program initialization */
+  void init();
+
+  /** to be called each init loop */
+  void initLoop();
+
+  /** to be called on program start */
+  void start();
+
+  /** to be called each program loop */
+  void loop();
+
+  /** to be called on program end */
+  void stop();
 }
