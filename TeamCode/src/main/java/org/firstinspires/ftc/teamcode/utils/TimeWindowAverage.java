@@ -24,7 +24,7 @@ public class TimeWindowAverage {
 
   /** Class to hold a calculated average value */
   public static class Average {
-    /** How confident the reading is, from 0.0 - 1.0 */
+    /** How confident the reading is, from 0.0 - 1.0 (-1 is an invalid reading) */
     public final double confidence;
 
     /** The value of the average */
@@ -42,6 +42,15 @@ public class TimeWindowAverage {
      */
     public boolean confident() {
       return this.confidence >= 1.0;
+    }
+
+    /**
+     * Gets if the average is valid or usable
+     *
+     * @return true is usable, false if unusable
+     */
+    public boolean valid() {
+      return this.confidence >= 0;
     }
   }
 
@@ -85,14 +94,23 @@ public class TimeWindowAverage {
   }
 
   /**
+   * Clears all past readings
+   */
+  public void clearAverage() {
+    list.clear();
+  }
+
+  /**
    * Gets the average value of all readings within the last average window
    *
    * @return the average of the recorded readings
    */
-  public Average getAverage() throws IllegalStateException {
+  public Average getAverage() {
     cleanList();
 
-    if (list.isEmpty()) throw new IllegalStateException("List must not be empty");
+    if (list.isEmpty()) {
+      return new Average(-1, 0);
+    }
 
     int size = list.size();
     double sum = 0;

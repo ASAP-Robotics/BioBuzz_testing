@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode.types;
 
 /** Simple enum to represent the operational status of robot systems */
 public enum SystemStatus {
+  UNKNOWN(2),
   NOMINAL(0),
+  INACTIVE(0),
   FALLBACK(1),
-  INOPERABLE(2);
+  COMPROMISED(2),
+  INOPERABLE(3);
 
   public final int severity;
 

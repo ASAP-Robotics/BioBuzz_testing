@@ -26,12 +26,24 @@ public class SystemReport {
   public SystemReport(SystemStatus status) {
     this.status = status;
     switch (status) {
+      case UNKNOWN:
+        this.message = "🟨Unknown";
+        break;
+
       case NOMINAL:
         this.message = "🟩Normal";
         break;
 
+      case INACTIVE:
+        this.message = "🟦Off";
+        break;
+
       case FALLBACK:
         this.message = "🟨Backup; performance may be degraded";
+        break;
+
+      case COMPROMISED:
+        this.message = "🟧Broken (probably mostly)";
         break;
 
       case INOPERABLE:
