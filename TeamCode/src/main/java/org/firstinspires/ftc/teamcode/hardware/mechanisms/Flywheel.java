@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.angleUnitsPerSecondToRpm;
@@ -12,7 +11,6 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
@@ -31,18 +29,25 @@ import org.firstinspires.ftc.teamcode.utils.TimeWindowAverage;
 public class Flywheel implements System, MonitoredSystem {
   /** If flywheel telemetry and tunable values should be used and updated each loop */
   public static boolean TUNING = false;
+
   /** The speed that the RPM simulation moves at, in RPM per second */
   public static double RPM_SIM_UNITS_PER_SECOND = 100.0;
+
   /** The most error the actual flywheel RPM can have from its simulation and be "operational" */
   public static double MAX_OPERATIONAL_RPM_ERROR = 100.0;
+
   /** The most error the actual flywheel RPM can have from its target and be "at target" */
   public static double MAX_AT_TARGET_RPM_ERROR = 10.0;
+
   /** The overcurrent threshold for the flywheel motor, in amps */
   public static double MAX_OPERATIONAL_MOTOR_CURRENT = 10.0;
+
   /** Flywheel PIDF tuning constants */
   public static double KP = 0.0, KI = 0.0, KD = 0.0, KF = 0.0;
+
   /** The length of time to take averages over */
   public static long AVERAGE_WINDOW_SPAN = 500;
+
   /** The minimum number of readings to base an average off of */
   public static int AVERAGE_MIN_READINGS = 10;
 
@@ -51,18 +56,25 @@ public class Flywheel implements System, MonitoredSystem {
 
   /** The motor driving the flywheel */
   private final DcMotorEx motor;
+
   /** A simulation to approximate how the flywheel should normally behave */
   private final Follower rpmSimulation;
+
   /** An average of the past error of the flywheel RPM for use in status monitoring */
   private final TimeWindowAverage averageRpmError;
+
   /** The operational status of the flywheel */
   private SystemStatus status = SystemStatus.INACTIVE;
+
   /** Telemetry to send data to */
   private final TelemetryManager tlm;
+
   /** Cached values of PIDF tuning constants so they can be applied only when changed */
   private double oldKp = 0.0, oldKi = 0.0, oldKd = 0.0, oldKf = 0.0;
+
   /** The RPM that the flywheel should be spinning at */
   private double targetRpm = 0.0;
+
   /** The RPM that the flywheel is actually spinning at */
   private double actualRpm = 0.0;
 
@@ -88,9 +100,7 @@ public class Flywheel implements System, MonitoredSystem {
   }
 
   @Override
-  public void initLoop() {
-
-  }
+  public void initLoop() {}
 
   @Override
   public void start() {
@@ -163,17 +173,15 @@ public class Flywheel implements System, MonitoredSystem {
     return areEqual(targetRpm, actualRpm, MAX_AT_TARGET_RPM_ERROR);
   }
 
-  /**
-   * Updates the tuning parameters of the flywheel so they update if tuned
-   */
+  /** Updates the tuning parameters of the flywheel so they update if tuned */
   private void updateConfigParameters() {
     if (!TUNING) return; // only update tunable values if tuning
     rpmSimulation.setSpeed(RPM_SIM_UNITS_PER_SECOND);
     motor.setCurrentAlert(MAX_OPERATIONAL_MOTOR_CURRENT, CurrentUnit.AMPS);
-    if (!areEqual(KP, oldKp) ||
-        !areEqual(KI, oldKi) ||
-        !areEqual(KD, oldKd) ||
-        !areEqual(KF, oldKf)) {
+    if (!areEqual(KP, oldKp)
+        || !areEqual(KI, oldKi)
+        || !areEqual(KD, oldKd)
+        || !areEqual(KF, oldKf)) {
       motor.setVelocityPIDFCoefficients(KP, KI, KD, KF);
       oldKp = KP;
       oldKi = KI;
@@ -184,9 +192,7 @@ public class Flywheel implements System, MonitoredSystem {
     averageRpmError.setMinReadings(AVERAGE_MIN_READINGS);
   }
 
-  /**
-   * Updates the flywheel's operational status
-   */
+  /** Updates the flywheel's operational status */
   private void updateStatus() {
     double simulatedMaxError =
         Math.abs(targetRpm - rpmSimulation.getValue()) + MAX_OPERATIONAL_RPM_ERROR;
@@ -203,9 +209,7 @@ public class Flywheel implements System, MonitoredSystem {
     }
   }
 
-  /**
-   * Updates telemetry data sent from the flywheel
-   */
+  /** Updates telemetry data sent from the flywheel */
   private void updateTelemetry() {
     if (!TUNING) return; // only show telemetry if tuning
     tlm.addData("Target RPM", targetRpm);

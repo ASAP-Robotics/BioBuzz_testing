@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
 import static org.firstinspires.ftc.teamcode.constants.UpdateTolerance.MOTOR_UPDATE_TOLERANCE;
@@ -12,12 +11,11 @@ import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
-import org.firstinspires.ftc.teamcode.types.SystemReport;
 import org.firstinspires.ftc.teamcode.interfaces.System;
+import org.firstinspires.ftc.teamcode.types.SystemReport;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
 import org.firstinspires.ftc.teamcode.utils.TimeWindowAverage;
 
@@ -47,12 +45,16 @@ public class Intake implements MonitoredSystem, System {
 
   /** If intake telemetry and tunable values should be used and updated each loop */
   public static boolean TUNING = false;
+
   /** The length of time to take averages over */
   public static long AVERAGE_WINDOW_SPAN = 500;
+
   /** The minimum number of readings to base an average off of */
   public static int AVERAGE_MIN_READINGS = 10;
+
   /** The amount of time (ms) after a state change that RPM readings are ignored */
   public static double STATE_CHANGE_AVERAGE_LOCKOUT_TIME = 250;
+
   /** The amount of time (ms) after a state change that status is assumed to be nominal */
   public static double STATE_CHANGE_STATUS_LOCKOUT_TIME = 750;
 
@@ -61,16 +63,22 @@ public class Intake implements MonitoredSystem, System {
 
   /** The intake's motor */
   private final DcMotorEx motor;
+
   /** The current state of the intake */
   private State state = State.DISABLED;
+
   /** The current operational status of the intake */
   private SystemStatus status = SystemStatus.INACTIVE;
+
   /** Timer to track how long the current state has been active */
   private final ElapsedTime stateTime;
+
   /** An average of the actual speed of the intake, to detect stalls */
   private final TimeWindowAverage rpmAverage;
+
   /** Telemetry to send data to */
   private final TelemetryManager tlm;
+
   /** If the intake is stalled */
   private boolean stalled = false;
 
@@ -96,9 +104,7 @@ public class Intake implements MonitoredSystem, System {
   }
 
   @Override
-  public void initLoop() {
-
-  }
+  public void initLoop() {}
 
   @Override
   public void start() {
@@ -174,27 +180,21 @@ public class Intake implements MonitoredSystem, System {
     return state;
   }
 
-  /**
-   * Applies the correct power to the motor
-   */
+  /** Applies the correct power to the motor */
   private void updateMotorPower() {
     if (Math.abs(motor.getPower() - state.motorPower) > MOTOR_UPDATE_TOLERANCE) {
       motor.setPower(state.motorPower);
     }
   }
 
-  /**
-   * Updates the tuning parameters of the intake, so they update if tuned
-   */
+  /** Updates the tuning parameters of the intake, so they update if tuned */
   private void updateConfigParameters() {
     if (!TUNING) return; // only update tunable values if tuning
     rpmAverage.setMinReadings(AVERAGE_MIN_READINGS);
     rpmAverage.setWindowSpan(AVERAGE_WINDOW_SPAN);
   }
 
-  /**
-   * Updates the intake's operational status
-   */
+  /** Updates the intake's operational status */
   private void updateStatus() {
     TimeWindowAverage.Average avgRpm = rpmAverage.getAverage();
     boolean statusUnlocked = stateTime.milliseconds() > STATE_CHANGE_STATUS_LOCKOUT_TIME;
@@ -219,9 +219,7 @@ public class Intake implements MonitoredSystem, System {
     }
   }
 
-  /**
-   * Updates telemetry data sent from the intake
-   */
+  /** Updates telemetry data sent from the intake */
   private void updateTelemetry() {
     if (!TUNING) return; // only show telemetry if tuning
     tlm.addData("State", state);

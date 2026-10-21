@@ -26,6 +26,7 @@ public class TimeWindowAverage {
   public static class Average {
     /** How confident the reading is, from 0.0 - 1.0 (-1 is an invalid reading) */
     public final double confidence;
+
     /** The number of readings the average is based off of */
     public final int readingNumber;
 
@@ -100,9 +101,7 @@ public class TimeWindowAverage {
     list.add(reading);
   }
 
-  /**
-   * Clears all past readings
-   */
+  /** Clears all past readings */
   public void clearAverage() {
     list.clear();
   }

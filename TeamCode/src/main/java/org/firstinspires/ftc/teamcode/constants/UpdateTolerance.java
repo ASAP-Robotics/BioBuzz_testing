@@ -7,8 +7,10 @@ import com.bylazar.configurables.annotations.Configurable;
 public class UpdateTolerance {
   /** The max allowable change in a servo target position before a new value should be sent */
   public static double SERVO_UPDATE_TOLERANCE = 0.01;
+
   /** The max allowable change in a servo target position before a new value should be sent */
   public static double SERVO_UPDATE_TOLERANCE_DEGREES = 0.5;
+
   /** The max allowable change in a motor target power before a new value should be sent */
   public static double MOTOR_UPDATE_TOLERANCE = 0.01;
 }

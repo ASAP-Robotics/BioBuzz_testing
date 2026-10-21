@@ -7,12 +7,16 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class Follower {
   /** The target position of the modeled system */
   protected double target;
+
   /** The current position of the modeled system */
   protected double value;
+
   /** The tolerance of the modeled system */
   protected double tolerance;
+
   /** The speed of the modeled system, in units per second */
   protected double speed;
+
   /** The time since the last update */
   protected ElapsedTime updateTime;
 
@@ -24,7 +28,8 @@ public class Follower {
    * @param tolerance the amount the value can differ from the target and be "at target"
    * @param speed the speed at which the modeled system moves, in units per second
    */
-  public Follower(double value, double target, double tolerance, double speed) throws IllegalArgumentException {
+  public Follower(double value, double target, double tolerance, double speed)
+      throws IllegalArgumentException {
     if (tolerance < 0.0 || speed < 0.0) {
       throw new IllegalArgumentException("Tolerance and speed must be positive");
     }
