@@ -26,12 +26,15 @@ public class TimeWindowAverage {
   public static class Average {
     /** How confident the reading is, from 0.0 - 1.0 (-1 is an invalid reading) */
     public final double confidence;
+    /** The number of readings the average is based off of */
+    public final int readingNumber;
 
     /** The value of the average */
     public final double average;
 
-    public Average(double confidence, double average) {
+    public Average(double confidence, int readingNumber, double average) {
       this.confidence = confidence;
+      this.readingNumber = readingNumber;
       this.average = average;
     }
 
@@ -39,6 +42,7 @@ public class TimeWindowAverage {
      * Gets if the average is fully confident
      *
      * @return true if the average is confident, false if it was based on too few readings
+     * @apiNote this is guaranteed to return false if the average is invalid
      */
     public boolean confident() {
       return this.confidence >= 1.0;
@@ -64,7 +68,10 @@ public class TimeWindowAverage {
    * @param windowSpan the timespan to average over
    * @param minReadings the minimum number of readings to base a confident average off of
    */
-  public TimeWindowAverage(long windowSpan, int minReadings) {
+  public TimeWindowAverage(long windowSpan, int minReadings) throws IllegalArgumentException {
+    if (windowSpan < 0.0 || minReadings < 0) {
+      throw new IllegalArgumentException("Window span and min readings must be positive");
+    }
     this.windowSpan = windowSpan;
     this.minReadings = minReadings;
     this.list = new ArrayDeque<>();
@@ -109,7 +116,7 @@ public class TimeWindowAverage {
     cleanList();
 
     if (list.isEmpty()) {
-      return new Average(-1, 0);
+      return new Average(-1, 0, 0);
     }
 
     int size = list.size();
@@ -119,7 +126,7 @@ public class TimeWindowAverage {
       sum += i.data;
     }
 
-    return new Average(size >= minReadings ? 1.0 : (double) size / minReadings, sum / size);
+    return new Average(size >= minReadings ? 1.0 : (double) size / minReadings, size, sum / size);
   }
 
   /**

@@ -102,4 +102,26 @@ public class MathUtils {
   public static boolean areEqual(double a, double b) {
     return areEqual(a, b, COMPARISON_THRESHOLD);
   }
+
+  /**
+   * Converts an angular velocity from angle units per second to revolutions per minute (RPM)
+   *
+   * @param unit the unit of the provided angular velocity
+   * @param unitsPerSecond the value of the angular velocity to be converted, in units per second
+   * @return the provided angular velocity, in revolutions per minute (RPM)
+   */
+  public static double angleUnitsPerSecondToRpm(AngleUnit unit, double unitsPerSecond) {
+    return AngleUnit.DEGREES.fromUnit(unit, unitsPerSecond) / 6.0; // 6 = 360 / 60
+  }
+
+  /**
+   * Converts an angular velocity from revolutions per minute (RPM) to angle units per second
+   *
+   * @param unit the angle unit for the returned angular velocity
+   * @param rpm the angular velocity to convert from, in revolutions per second (RPM)
+   * @return the provided angular velocity, in angle units per second
+   */
+  public static double rpmToAngleUnitsPerSecond(AngleUnit unit, double rpm) {
+    return unit.fromDegrees(rpm * 6.0); // 6 = 360 / 60
+  }
 }

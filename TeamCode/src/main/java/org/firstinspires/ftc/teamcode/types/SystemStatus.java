@@ -7,8 +7,8 @@ public enum SystemStatus {
   NOMINAL(0),
   INACTIVE(0),
   FALLBACK(1),
-  COMPROMISED(2),
-  INOPERABLE(3);
+  COMPROMISED(3),
+  INOPERABLE(4);
 
   public final int severity;
 
