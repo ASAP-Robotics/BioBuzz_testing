@@ -24,14 +24,18 @@ public class TimeWindowAverage {
 
   /** Class to hold a calculated average value */
   public static class Average {
-    /** How confident the reading is, from 0.0 - 1.0 */
+    /** How confident the reading is, from 0.0 - 1.0 (-1 is an invalid reading) */
     public final double confidence;
+
+    /** The number of readings the average is based off of */
+    public final int readingNumber;
 
     /** The value of the average */
     public final double average;
 
-    public Average(double confidence, double average) {
+    public Average(double confidence, int readingNumber, double average) {
       this.confidence = confidence;
+      this.readingNumber = readingNumber;
       this.average = average;
     }
 
@@ -39,9 +43,19 @@ public class TimeWindowAverage {
      * Gets if the average is fully confident
      *
      * @return true if the average is confident, false if it was based on too few readings
+     * @apiNote this is guaranteed to return false if the average is invalid
      */
     public boolean confident() {
       return this.confidence >= 1.0;
+    }
+
+    /**
+     * Gets if the average is valid or usable
+     *
+     * @return true is usable, false if unusable
+     */
+    public boolean valid() {
+      return this.confidence >= 0;
     }
   }
 
@@ -55,7 +69,10 @@ public class TimeWindowAverage {
    * @param windowSpan the timespan to average over
    * @param minReadings the minimum number of readings to base a confident average off of
    */
-  public TimeWindowAverage(long windowSpan, int minReadings) {
+  public TimeWindowAverage(long windowSpan, int minReadings) throws IllegalArgumentException {
+    if (windowSpan < 0.0 || minReadings < 0) {
+      throw new IllegalArgumentException("Window span and min readings must be positive");
+    }
     this.windowSpan = windowSpan;
     this.minReadings = minReadings;
     this.list = new ArrayDeque<>();
@@ -84,15 +101,22 @@ public class TimeWindowAverage {
     list.add(reading);
   }
 
+  /** Clears all past readings */
+  public void clearAverage() {
+    list.clear();
+  }
+
   /**
    * Gets the average value of all readings within the last average window
    *
    * @return the average of the recorded readings
    */
-  public Average getAverage() throws IllegalStateException {
+  public Average getAverage() {
     cleanList();
 
-    if (list.isEmpty()) throw new IllegalStateException("List must not be empty");
+    if (list.isEmpty()) {
+      return new Average(-1, 0, 0);
+    }
 
     int size = list.size();
     double sum = 0;
@@ -101,7 +125,7 @@ public class TimeWindowAverage {
       sum += i.data;
     }
 
-    return new Average(size >= minReadings ? 1.0 : (double) size / minReadings, sum / size);
+    return new Average(size >= minReadings ? 1.0 : (double) size / minReadings, size, sum / size);
   }
 
   /**

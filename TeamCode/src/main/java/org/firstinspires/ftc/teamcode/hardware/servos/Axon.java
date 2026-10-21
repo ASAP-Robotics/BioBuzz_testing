@@ -12,13 +12,13 @@ import static org.firstinspires.ftc.teamcode.utils.MathUtils.map;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-import org.firstinspires.ftc.teamcode.interfaces.System;
+import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
 import org.firstinspires.ftc.teamcode.types.SystemReport;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
 import org.firstinspires.ftc.teamcode.utils.Follower;
 
 /** Wrapper around the `Servo` class to add encoder feedback and rudimentary fault detection */
-public class Axon implements System {
+public class Axon implements MonitoredSystem {
   private SystemStatus status = SystemStatus.NOMINAL; // the status of the servo
   private final Follower follower; // backup follower to model servo movement if encoder fails
   private final Servo servo; // the servo being controlled
