@@ -1,12 +1,10 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.utils;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.jetbrains.annotations.TestOnly;
 
 /**
@@ -18,16 +16,21 @@ import org.jetbrains.annotations.TestOnly;
 public class LoopTimeTracker {
   /** If telemetry should be sent directly from this class */
   public static boolean TELEMETRY_ENABLE = false;
+
   /** How often telemetry should be updated, in milliseconds */
   public static double TELEMETRY_UPDATE_INTERVAL = 1000;
 
   /** The time to measure loop time averages over, in milliseconds */
   private static final long AVERAGE_WINDOW_MS = 1000;
+
   /** Timer for measuring loop times */
   private final ElapsedTime loopTimer;
+
   private final ElapsedTime telemetryUpdateTimer;
+
   /** Time window average for loop times */
   private final TimeWindowAverage loopTimeAverage;
+
   /** Telemetry to send data to */
   private final TelemetryManager tlm;
 
@@ -38,17 +41,13 @@ public class LoopTimeTracker {
     this.tlm = PanelsTelemetry.INSTANCE.getTelemetry();
   }
 
-  /**
-   * Resets the timer of how long it's been since the last loop
-   */
+  /** Resets the timer of how long it's been since the last loop */
   public void start() {
     loopTimer.reset();
     telemetryUpdateTimer.reset();
   }
 
-  /**
-   * Records a new loop, and if telemetry is enabled, updates telemetry
-   */
+  /** Records a new loop, and if telemetry is enabled, updates telemetry */
   public void loop() {
     double lastLoopTime = loopTimer.milliseconds();
     loopTimer.reset();
@@ -123,9 +122,7 @@ public class LoopTimeTracker {
     return topLoopTimesSum / numTopTimes;
   }
 
-  /**
-   * Updates the telemetry from this class
-   */
+  /** Updates the telemetry from this class */
   private void updateTelemetry() {
     tlm.addData("Loop Time Average (ms)", getAverageLoopTimeMs());
     tlm.addData("Loop Time Jitter (ms)", getLoopTimeJitterMs());

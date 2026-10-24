@@ -2,7 +2,6 @@
 package org.firstinspires.ftc.teamcode.utils;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,19 +64,23 @@ public class TimeWindowAverage {
   }
 
   /**
-   * How often the list should be cleaned automatically to same memory, in milliseconds.
-   * Made slightly weird so cleaning doesn't coincide with other time-based "slow" tasks
+   * How often the list should be cleaned automatically to same memory, in milliseconds. Made
+   * slightly weird so cleaning doesn't coincide with other time-based "slow" tasks
    */
   private static final double AUTO_CLEAN_LIST_INTERVAL_MS = 5377;
 
   /** List (Deque) of readings */
   private final Deque<Reading> list;
+
   /** Timer to track how long it's been since the list has been cleaned */
   private final ElapsedTime timeSinceLastClean;
+
   /** A running sum of the readings in the list */
   private double runningSum = 0.0;
+
   /** The size of the time window to take averages over, in milliseconds */
   private long windowSpan;
+
   /** The minimum number of readings for a confident average to be generated from */
   private int minReadings;
 
@@ -121,8 +124,10 @@ public class TimeWindowAverage {
    */
   public void addReading(Reading reading) throws IllegalArgumentException {
     // this shouldn't ever throw a NullPointerException, ignore warning
-    if (reading == null || Double.isNaN(reading.data) || Double.isInfinite(reading.data) ||
-        (!list.isEmpty() && reading.timeStamp < list.peekLast().timeStamp))
+    if (reading == null
+        || Double.isNaN(reading.data)
+        || Double.isInfinite(reading.data)
+        || (!list.isEmpty() && reading.timeStamp < list.peekLast().timeStamp))
       throw new IllegalArgumentException();
     list.add(reading);
     runningSum += reading.data;
@@ -287,7 +292,7 @@ public class TimeWindowAverage {
     long now = Timestamp.now();
 
     // this shouldn't ever throw an exception, ignore warning
-    while (!list.isEmpty() &&  now - list.peek().timeStamp > windowSpan) {
+    while (!list.isEmpty() && now - list.peek().timeStamp > windowSpan) {
       runningSum -= list.remove().data;
     }
 
