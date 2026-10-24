@@ -1,8 +1,13 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.utils;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 import java.util.ArrayDeque;
-import java.util.Queue;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
 
 /** Class to take the average of a number of readings over a set time window */
 public class TimeWindowAverage {
@@ -59,23 +64,37 @@ public class TimeWindowAverage {
     }
   }
 
-  private final Queue<Reading> list;
+  /**
+   * How often the list should be cleaned automatically to same memory, in milliseconds.
+   * Made slightly weird so cleaning doesn't coincide with other time-based "slow" tasks
+   */
+  private static final double AUTO_CLEAN_LIST_INTERVAL_MS = 5377;
+
+  /** List (Deque) of readings */
+  private final Deque<Reading> list;
+  /** Timer to track how long it's been since the list has been cleaned */
+  private final ElapsedTime timeSinceLastClean;
+  /** A running sum of the readings in the list */
+  private double runningSum = 0.0;
+  /** The size of the time window to take averages over, in milliseconds */
   private long windowSpan;
+  /** The minimum number of readings for a confident average to be generated from */
   private int minReadings;
 
   /**
    * Makes a new TimeWindowAverage
    *
-   * @param windowSpan the timespan to average over
+   * @param windowSpan the timespan to average over (milliseconds)
    * @param minReadings the minimum number of readings to base a confident average off of
    */
   public TimeWindowAverage(long windowSpan, int minReadings) throws IllegalArgumentException {
-    if (windowSpan < 0.0 || minReadings < 0) {
+    if (windowSpan <= 0.0 || minReadings <= 0) {
       throw new IllegalArgumentException("Window span and min readings must be positive");
     }
     this.windowSpan = windowSpan;
     this.minReadings = minReadings;
     this.list = new ArrayDeque<>();
+    this.timeSinceLastClean = new ElapsedTime();
   }
 
   /**
@@ -86,6 +105,11 @@ public class TimeWindowAverage {
   public void addReading(double data) throws IllegalArgumentException {
     if (Double.isNaN(data) || Double.isInfinite(data)) throw new IllegalArgumentException();
     list.add(new Reading(data));
+    runningSum += data;
+
+    if (timeSinceLastClean.milliseconds() >= AUTO_CLEAN_LIST_INTERVAL_MS) {
+      cleanList();
+    }
   }
 
   /**
@@ -93,17 +117,26 @@ public class TimeWindowAverage {
    *
    * @param reading the reading to add
    * @apiNote this is included in case it's useful, but prefer the other overload
-   * @implNote this method doesn't validate the reading timestamps passed to it, use caution
+   * @implNote this method doesn't fully validate the reading passed to it, use caution
    */
-  public void addReading(Reading reading) {
-    if (reading == null || Double.isNaN(reading.data) || Double.isInfinite(reading.data))
+  public void addReading(Reading reading) throws IllegalArgumentException {
+    // this shouldn't ever throw a NullPointerException, ignore warning
+    if (reading == null || Double.isNaN(reading.data) || Double.isInfinite(reading.data) ||
+        (!list.isEmpty() && reading.timeStamp < list.peekLast().timeStamp))
       throw new IllegalArgumentException();
     list.add(reading);
+    runningSum += reading.data;
+
+    if (timeSinceLastClean.milliseconds() >= AUTO_CLEAN_LIST_INTERVAL_MS) {
+      cleanList();
+    }
   }
 
   /** Clears all past readings */
   public void clearAverage() {
     list.clear();
+    runningSum = 0.0;
+    timeSinceLastClean.reset();
   }
 
   /**
@@ -115,17 +148,118 @@ public class TimeWindowAverage {
     cleanList();
 
     if (list.isEmpty()) {
-      return new Average(-1, 0, 0);
+      return new Average(-1.0, 0, 0.0);
     }
 
-    int size = list.size();
-    double sum = 0;
+    int readingNumber = list.size();
+    double confidence = readingNumber >= minReadings ? 1.0 : (double) readingNumber / minReadings;
+
+    return new Average(confidence, readingNumber, runningSum / readingNumber);
+  }
+
+  /**
+   * Gets the most recently added reading
+   *
+   * @return the latest reading
+   * @apiNote this doesn't ensure that the returned reading is inside the averaging window
+   */
+  public Reading getLatestReading() {
+    return list.peekLast();
+  }
+
+  /**
+   * Gets an unmodifiable copy of the internal list of readings
+   *
+   * @return an unmodifiable list of readings
+   * @apiNote this method shouldn't be used; it copies the entire internal list, which is slow
+   */
+  @Deprecated
+  public List<Reading> getReadingList() {
+    cleanList();
+    return Collections.unmodifiableList(new ArrayList<>(list));
+  }
+
+  /**
+   * Gets the difference between the data of the readings with the highest and lowest data values
+   *
+   * @return the difference between the data of the readings with the highest and lowest data values
+   */
+  public double getMaxMinReadingDifference() {
+    cleanList();
+
+    if (list.isEmpty()) return 0.0;
+
+    double maxData = Double.NEGATIVE_INFINITY;
+    double minData = Double.POSITIVE_INFINITY;
 
     for (Reading i : list) {
-      sum += i.data;
+      double readingData = i.data;
+      if (readingData > maxData) maxData = readingData;
+      if (readingData < minData) minData = readingData;
     }
 
-    return new Average(size >= minReadings ? 1.0 : (double) size / minReadings, size, sum / size);
+    return maxData - minData;
+  }
+
+  /**
+   * Gets the n readings with data closest to a given value
+   *
+   * @param n the number of readings to return
+   * @param compareTo the data value the returned values will be close to (should be finite)
+   * @return an array of the n closest readings to the given value
+   */
+  public Reading[] getClosestNReadings(int n, double compareTo) throws IllegalArgumentException {
+    cleanList();
+    // allow `n` values of 0, to match empty list behavior
+    if (n < 0 || Double.isNaN(compareTo) || Double.isInfinite(compareTo)) {
+      throw new IllegalArgumentException();
+    }
+    n = Math.min(n, list.size()); // clamp n to below list size to avoid unnecessary exceptions
+
+    Reading[] closest = new Reading[n];
+
+    // go through list to find closest n readings
+    int fillCount = 0; // using counter instead of normal FOR loop for performance
+    int worstIndex = -1;
+    double worstError = Double.NEGATIVE_INFINITY;
+    for (Reading i : list) {
+      // check if list of closest readings isn't full yet
+      if (fillCount < closest.length) {
+        closest[fillCount++] = i;
+      } else {
+        // if we need to recalculate furthest value / index in the list of closest readings
+        if (worstIndex == -1) {
+          // go through list of closest readings to find furthest reading in it
+          for (int j = 0; j < closest.length; j++) {
+            double readingErrorJ = Math.abs(compareTo - closest[j].data);
+            if (readingErrorJ > worstError) {
+              worstError = readingErrorJ;
+              worstIndex = j;
+            }
+          }
+        }
+
+        // check if reading is closer than the furthest reading in current list of closest readings
+        double readingErrorI = Math.abs(compareTo - i.data);
+        if (readingErrorI < worstError) {
+          closest[worstIndex] = i;
+          worstIndex = -1; // mark for recalculation
+          worstError = Double.NEGATIVE_INFINITY; // ensure worst error is recalculated
+        }
+      }
+    }
+
+    return closest;
+  }
+
+  /**
+   * Gets the number of readings within the average window span
+   *
+   * @return the number of readings within the average window span
+   */
+  public int getNumReadings() {
+    cleanList();
+    return list.size();
   }
 
   /**
@@ -152,8 +286,11 @@ public class TimeWindowAverage {
   private void cleanList() {
     long now = Timestamp.now();
 
-    while (!list.isEmpty() && list.peek().timeStamp + windowSpan <= now) {
-      list.remove();
+    // this shouldn't ever throw an exception, ignore warning
+    while (!list.isEmpty() &&  now - list.peek().timeStamp > windowSpan) {
+      runningSum -= list.remove().data;
     }
+
+    timeSinceLastClean.reset();
   }
 }
