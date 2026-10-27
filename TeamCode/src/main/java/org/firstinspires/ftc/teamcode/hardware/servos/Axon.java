@@ -17,6 +17,8 @@ import org.firstinspires.ftc.teamcode.types.SystemReport;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
 import org.firstinspires.ftc.teamcode.utils.Follower;
 
+// TODO: implement System interface
+
 /** Wrapper around the `Servo` class to add encoder feedback and rudimentary fault detection */
 public class Axon implements MonitoredSystem {
   private SystemStatus status = SystemStatus.NOMINAL; // the status of the servo
