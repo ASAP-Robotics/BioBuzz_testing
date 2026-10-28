@@ -27,6 +27,7 @@ public class Follower {
    * @param target the initial target of the modeled system
    * @param tolerance the amount the value can differ from the target and be "at target"
    * @param speed the speed at which the modeled system moves, in units per second
+   * @throws IllegalArgumentException if passed tolerance or speed is negative
    */
   public Follower(double value, double target, double tolerance, double speed)
       throws IllegalArgumentException {
@@ -44,6 +45,7 @@ public class Follower {
    * Sets the tolerance of the modeled system
    *
    * @param tolerance the tolerance fo the system
+   * @throws IllegalArgumentException if passed tolerance is negative
    */
   public void setTolerance(double tolerance) throws IllegalArgumentException {
     if (tolerance < 0.0) {
@@ -65,10 +67,11 @@ public class Follower {
    * Sets the speed at which the modeled system moves
    *
    * @param speed the speed of the modeled system, in units per second
+   * @throws IllegalArgumentException if passed speed is negative or not a number
    */
   public void setSpeed(double speed) throws IllegalArgumentException {
-    if (speed < 0.0) {
-      throw new IllegalArgumentException("Speed must be positive");
+    if (speed < 0.0 || Double.isNaN(speed)) {
+      throw new IllegalArgumentException("Speed must be positive, and a number");
     }
     this.speed = speed;
   }
@@ -86,8 +89,12 @@ public class Follower {
    * Sets the target value of the modeled system
    *
    * @param target the target value of the modeled system
+   * @throws IllegalArgumentException if passed target is not a number
    */
-  public void setTarget(double target) {
+  public void setTarget(double target) throws IllegalArgumentException {
+    if (Double.isNaN(target)) {
+      throw new IllegalArgumentException("Target must be a number");
+    }
     this.target = target;
   }
 
@@ -134,7 +141,8 @@ public class Follower {
     double deltaTime = updateTime.seconds();
     updateTime.reset();
     double error = target - value;
-    double maxChange = speed * deltaTime;
+    // if speed is infinite, we allow maximum change no matter the time delta
+    double maxChange = Double.isFinite(speed) ? speed * deltaTime : speed;
     value += Math.copySign(Math.min(Math.abs(error), maxChange), error);
   }
 }
