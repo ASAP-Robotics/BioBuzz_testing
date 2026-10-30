@@ -12,9 +12,13 @@ import static org.firstinspires.ftc.teamcode.utils.MathUtils.areEqual;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.getDifferenceCircular;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.map;
 
+import com.bylazar.configurables.annotations.Configurable;
+import com.bylazar.telemetry.PanelsTelemetry;
+import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
 import org.firstinspires.ftc.teamcode.interfaces.System;
 import org.firstinspires.ftc.teamcode.types.SystemReport;
@@ -22,7 +26,12 @@ import org.firstinspires.ftc.teamcode.types.SystemStatus;
 import org.firstinspires.ftc.teamcode.utils.Follower;
 
 /** Class to control Axon servos. Basically a wrapper around the `Servo` class to add encoder
- * feedback, rudimentary fault detection, and variable speed movement. */
+ * feedback, rudimentary fault detection, and variable speed movement.
+ *
+ * @apiNote this class assumes that bulk caching is enabled elsewhere and that Panels telemetry is
+ * updated regularly elsewhere (if telemetry is used)
+ */
+@Configurable
 public class Axon implements MonitoredSystem, System {
   public enum Type {
     /** Represents an Axon MAX+ */
@@ -44,6 +53,11 @@ public class Axon implements MonitoredSystem, System {
     }
   }
 
+  /** If telemetry should be sent directly from Axons */
+  public static boolean TELEMETRY_ENABLE = false;
+
+  private static int AXON_COUNT = 0;
+
   /** The type of the Axon (MAX+ or MINI+) */
   public final Type type;
   /** Backup simulation to model Axon movement if encoder fails */
@@ -54,10 +68,14 @@ public class Axon implements MonitoredSystem, System {
   private final Servo servo;
   /** The encoder of the Axon being controlled */
   private final AnalogInput encoder;
-  /** If true, the Axon won't use the encoder, and will always be "at target"*/
+  /** If true, the Axon won't use the encoder or send telemetry, and will always be "at target"*/
   private final boolean dummy;
   /** How far encoder readings can deviate from target and Axon still be "at target" */
   private final double toleranceDegrees;
+  /** Telemetry to send data to */
+  private final TelemetryManager tlm;
+  /** The name of the Axon */
+  private String name = "Axon";
   /** The operational status of the Axon */
   private SystemStatus status = SystemStatus.NOMINAL;
   /** The last measured position of the Axon from the encoder, in degrees */
@@ -77,8 +95,11 @@ public class Axon implements MonitoredSystem, System {
     this(
         type,
         hardwareMap.get(Servo.class, servoName),
-        hardwareMap.get(AnalogInput.class, encoderName)
+        hardwareMap.get(AnalogInput.class, encoderName),
+        5,
+        false
     );
+    this.name = servoName + " (Axon" + AXON_COUNT + ")";
   }
 
   /**
@@ -88,17 +109,7 @@ public class Axon implements MonitoredSystem, System {
    */
   public Axon(Servo servo) {
     this(Type.UNKNOWN, servo, null, 5, true);
-  }
-
-  /**
-   * Creates a default Axon
-   *
-   * @param type the type of Axon this is (MAX+ or MINI+)
-   * @param servo the servo to control
-   * @param encoder the encoder of the servo being controlled
-   */
-  public Axon(Type type, Servo servo, AnalogInput encoder) {
-    this(type, servo, encoder, 5, false);
+    this.name = "Axon" + AXON_COUNT; // set name
   }
 
   /**
@@ -127,11 +138,15 @@ public class Axon implements MonitoredSystem, System {
     this.movementSimulation =
         dummy ? null : new Follower(0.0, 0.0, COMPARISON_THRESHOLD, type.maxSpeed / 2);
     this.targetFollower = new Follower(0.0, 0.0, COMPARISON_THRESHOLD, Double.POSITIVE_INFINITY);
+    this.tlm = PanelsTelemetry.INSTANCE.getTelemetry();
     if (dummy) this.isAtTarget = true;
+    AXON_COUNT++; // increment the number of Axons created
+    this.name = "Axon" + AXON_COUNT; // set name
   }
 
   @Override
   public void init() {
+    // TODO: maybe add support for completely de-energizing servos on init?
     if (!dummy) {
       double posDeg = readPositionDegrees();
       // hold current position on init
@@ -201,6 +216,8 @@ public class Axon implements MonitoredSystem, System {
     status = followerAtTarget && !encoderAtTarget ? SystemStatus.FALLBACK : SystemStatus.NOMINAL;
     // eventually being considered "at target" when jammed is intentional
     isAtTarget = encoderAtTarget || followerAtTarget;
+    // update telemetry
+    if (TELEMETRY_ENABLE) updateTelemetry();
   }
 
   /**
@@ -315,5 +332,14 @@ public class Axon implements MonitoredSystem, System {
     // This is older code that worked, but I don't like how it handles dead banding of the encoder
     // Waiting until hardware testing to change ("don't fix what's not broken" mentality)
     return min(360, max(0, map(360 - ((encoder.getVoltage() / 3.3) * 360), 20, 340, 0, 360)));
+  }
+
+  /** Updates the telemetry from this Axon */
+  private void updateTelemetry() {
+    tlm.addData(name + " Status", status);
+    tlm.addData(name + " Target position", getTargetPosition());
+    tlm.addData(name + " Actual position", getPosition());
+    tlm.addData(name + " At target", atTarget());
+    tlm.addData(name + " Target speed", getTargetSpeed());
   }
 }
