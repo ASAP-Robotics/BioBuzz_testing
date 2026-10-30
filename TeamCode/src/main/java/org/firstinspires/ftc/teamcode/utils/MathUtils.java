@@ -104,6 +104,38 @@ public class MathUtils {
   }
 
   /**
+   * Gets the difference between two values in a circular number space (e.g. where 0 == 360)
+   *
+   * @param a the first number
+   * @param b the second number
+   * @param max the maximum (inclusive) value of the circular space
+   * @param min the minimum (inclusive) value of the circular space
+   * @return the difference between the two values
+   */
+  public static double getDifferenceCircular(double a, double b, double max, double min) {
+    if (Double.isNaN(a)
+        || Double.isNaN(b)
+        || Double.isNaN(max)
+        || Double.isNaN(min)
+        || min >= max
+        || a > max
+        || a < min
+        || b > max
+        || b < min) {
+      throw new IllegalArgumentException();
+    }
+
+    double range = max - min;
+    double diff = (a - b) % range;
+    if (diff < -range / 2.0) {
+      diff += range;
+    } else if (diff > range / 2.0) {
+      diff -= range;
+    }
+    return diff;
+  }
+
+  /**
    * Converts an angular velocity from angle units per second to revolutions per minute (RPM)
    *
    * @param unit the unit of the provided angular velocity
