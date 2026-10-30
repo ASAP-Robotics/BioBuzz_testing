@@ -6,7 +6,8 @@ import com.bylazar.configurables.annotations.Configurable;
 @Configurable
 public class UpdateTolerance {
   /** The max allowable change in a servo target position before a new value should be sent */
-  public static double SERVO_UPDATE_TOLERANCE = 0.005; // approximately 1 degree for 180 degree servo
+  public static double SERVO_UPDATE_TOLERANCE =
+      0.005; // approximately 1 degree for 180 degree servo
 
   /** The max allowable change in a servo target position before a new value should be sent */
   public static double SERVO_UPDATE_TOLERANCE_DEGREES = 1.0;

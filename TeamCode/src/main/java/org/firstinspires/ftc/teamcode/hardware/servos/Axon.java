@@ -18,18 +18,18 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.AnalogInput;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
 import org.firstinspires.ftc.teamcode.interfaces.System;
 import org.firstinspires.ftc.teamcode.types.SystemReport;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
 import org.firstinspires.ftc.teamcode.utils.Follower;
 
-/** Class to control Axon servos. Basically a wrapper around the `Servo` class to add encoder
+/**
+ * Class to control Axon servos. Basically a wrapper around the `Servo` class to add encoder
  * feedback, rudimentary fault detection, and variable speed movement.
  *
  * @apiNote this class assumes that bulk caching is enabled elsewhere and that Panels telemetry is
- * updated regularly elsewhere (if telemetry is used)
+ *     updated regularly elsewhere (if telemetry is used)
  */
 @Configurable
 public class Axon implements MonitoredSystem, System {
@@ -46,6 +46,7 @@ public class Axon implements MonitoredSystem, System {
 
     /**
      * Constructor for Axon Types
+     *
      * @param maxSpeed the no-load speed of the Axon at 6.0 volts, in degrees per second
      */
     Type(double maxSpeed) {
@@ -60,26 +61,41 @@ public class Axon implements MonitoredSystem, System {
 
   /** The type of the Axon (MAX+ or MINI+) */
   public final Type type;
+
   /** Backup simulation to model Axon movement if encoder fails */
   private final Follower movementSimulation;
-  /** Used to slow Axon movement. <p>Units: degrees (per second)</p> */
+
+  /**
+   * Used to slow Axon movement.
+   *
+   * <p>Units: degrees (per second)
+   */
   private final Follower targetFollower;
+
   /** The (Axon) servo being controlled */
   private final Servo servo;
+
   /** The encoder of the Axon being controlled */
   private final AnalogInput encoder;
-  /** If true, the Axon won't use the encoder or send telemetry, and will always be "at target"*/
+
+  /** If true, the Axon won't use the encoder or send telemetry, and will always be "at target" */
   private final boolean dummy;
+
   /** How far encoder readings can deviate from target and Axon still be "at target" */
   private final double toleranceDegrees;
+
   /** Telemetry to send data to */
   private final TelemetryManager tlm;
+
   /** The name of the Axon */
   private String name = "Axon";
+
   /** The operational status of the Axon */
   private SystemStatus status = SystemStatus.NOMINAL;
+
   /** The last measured position of the Axon from the encoder, in degrees */
   private double positionDegrees = 0.0;
+
   /** The last calculated value of if the Axon is "at target" */
   private boolean isAtTarget = false;
 
@@ -97,8 +113,7 @@ public class Axon implements MonitoredSystem, System {
         hardwareMap.get(Servo.class, servoName),
         hardwareMap.get(AnalogInput.class, encoderName),
         5,
-        false
-    );
+        false);
     this.name = servoName + " (Axon" + AXON_COUNT + ")";
   }
 
@@ -125,8 +140,10 @@ public class Axon implements MonitoredSystem, System {
    */
   public Axon(Type type, Servo servo, AnalogInput encoder, double toleranceDegrees, boolean dummy)
       throws IllegalArgumentException {
-    if (type == null || servo == null || (encoder == null && !dummy) ||
-        Double.isNaN(toleranceDegrees)) {
+    if (type == null
+        || servo == null
+        || (encoder == null && !dummy)
+        || Double.isNaN(toleranceDegrees)) {
       throw new IllegalArgumentException();
     }
     this.type = type;
@@ -187,9 +204,7 @@ public class Axon implements MonitoredSystem, System {
     }
   }
 
-  /**
-   * Updates the Axon, its position, and its status
-   */
+  /** Updates the Axon, its position, and its status */
   protected void update() {
     double lastSetPosition = servo.getPosition();
     double targetPositionDegrees = targetFollower.getValue();
@@ -208,9 +223,8 @@ public class Axon implements MonitoredSystem, System {
 
     // update "at target" & operational status
     boolean encoderAtTarget =
-        Math.abs(
-            getDifferenceCircular(getPosition(), getTargetPosition(), 360.0, 0.0)
-        ) <= toleranceDegrees;
+        Math.abs(getDifferenceCircular(getPosition(), getTargetPosition(), 360.0, 0.0))
+            <= toleranceDegrees;
     boolean followerAtTarget = movementSimulation.isAtTarget();
     // status being inconsistent is OK, it's primarily for driver info
     status = followerAtTarget && !encoderAtTarget ? SystemStatus.FALLBACK : SystemStatus.NOMINAL;
@@ -275,7 +289,7 @@ public class Axon implements MonitoredSystem, System {
    *
    * @return the target position of the Axon, in degrees (0 if it hasn't been set yet)
    * @apiNote this method doesn't return the current position, it returns the <strong>target
-   * position</strong>.
+   *     position</strong>.
    */
   public double getTargetPosition() {
     return targetFollower.getTarget();
@@ -304,6 +318,7 @@ public class Axon implements MonitoredSystem, System {
 
   /**
    * Sets the target speed of the Axon, it will try to move approximately this fast.
+   *
    * @param degreesPerSecond the target speed of the Axon, in degrees per second
    * @throws IllegalArgumentException if speed is negative or not a number
    * @apiNote Set speed to infinity for maximum speed

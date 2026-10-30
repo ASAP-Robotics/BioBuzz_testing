@@ -113,8 +113,15 @@ public class MathUtils {
    * @return the difference between the two values
    */
   public static double getDifferenceCircular(double a, double b, double max, double min) {
-    if (Double.isNaN(a) || Double.isNaN(b) || Double.isNaN(max) || Double.isNaN(min) ||
-        min >= max || a > max || a < min || b > max || b < min) {
+    if (Double.isNaN(a)
+        || Double.isNaN(b)
+        || Double.isNaN(max)
+        || Double.isNaN(min)
+        || min >= max
+        || a > max
+        || a < min
+        || b > max
+        || b < min) {
       throw new IllegalArgumentException();
     }
 

@@ -5,7 +5,6 @@ import static org.firstinspires.ftc.teamcode.constants.UpdateTolerance.SERVO_UPD
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
-
 import org.firstinspires.ftc.teamcode.interfaces.System;
 import org.firstinspires.ftc.teamcode.utils.Follower;
 
@@ -87,7 +86,7 @@ public class RGBIndicator implements System {
    * Updates the indicator light
    *
    * @apiNote this should be called every loop and every target color change; the color of the light
-   * won't change if this method isn't called
+   *     won't change if this method isn't called
    */
   protected void update() {
     if (atColor) return;
@@ -101,9 +100,10 @@ public class RGBIndicator implements System {
   }
 
   /**
-   * Sets the display color of the light (the light will immediately display this color). <p>This
-   * method is fairly fast (1 hardware write if  new color is set), assuming a new (unique) color
-   * isn't set each loop</p>
+   * Sets the display color of the light (the light will immediately display this color).
+   *
+   * <p>This method is fairly fast (1 hardware write if new color is set), assuming a new (unique)
+   * color isn't set each loop
    *
    * @param color the color to set the light to
    */
@@ -117,10 +117,12 @@ public class RGBIndicator implements System {
   }
 
   /**
-   * Sets the target color of the light (the color the light will fade to). <p><strong>⚠️ Avoid this
-   * method for competition use.</strong> Because fading to a new color requires hardware writes
-   * every loop until the target color is reached, using this method can detriment loop times. Use
-   * this method only when loop times don't matter, like in testing or example code.</p>
+   * Sets the target color of the light (the color the light will fade to).
+   *
+   * <p><strong>⚠️ Avoid this method for competition use.</strong> Because fading to a new color
+   * requires hardware writes every loop until the target color is reached, using this method can
+   * detriment loop times. Use this method only when loop times don't matter, like in testing or
+   * example code.
    *
    * @param color the color to set the light to
    * @see setColor
