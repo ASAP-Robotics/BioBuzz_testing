@@ -2,6 +2,7 @@
 
 package org.firstinspires.ftc.teamcode.utils;
 
+import static org.firstinspires.ftc.teamcode.utils.MathUtils.areEqual;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.map;
 
 import java.util.Arrays;
@@ -17,6 +18,13 @@ public class LookupTable {
     public final double value2;
 
     public Entry(double key, double value1, double value2) {
+      if (Double.isNaN(key) ||
+          Double.isInfinite(key) ||
+          Double.isNaN(value1) ||
+          Double.isNaN(value2)) {
+        throw new IllegalArgumentException("Key and values must be valid, and key must be finite");
+      }
+
       this.key = key;
       this.value1 = value1;
       this.value2 = value2;
@@ -30,41 +38,52 @@ public class LookupTable {
    * Makes a new `LookupTable`
    *
    * @param list an array of table entries; must contain at least two entries and must not contain
-   *             entries with duplicate keys
+   *             entries with invalid values or duplicate, infinite, or missing keys
+   * @implNote this isn't the most efficient it could be, so don't use after init
    */
   public LookupTable(Entry[] list) {
     // validate list to ensure at least two entries
-    if (list.length < 2) {
-      throw new IllegalArgumentException("List must contain at least two entries");
+    if (list == null || list.length < 2) {
+      throw new IllegalArgumentException("List must not be null, and contain at least two entries");
     }
 
-    // validate list to ensure unique keys
+    // validate list to ensure unique, valid keys
     for (int i = 0; i < list.length - 1; i++) {
+      if (list[i] == null) {
+        throw new IllegalArgumentException("List entries must not be null");
+      }
       for (int j = i + 1; j < list.length; j++) {
-        if (list[i].key == list[j].key) {
+        if (areEqual(list[i].key, list[j].key)) {
           throw new IllegalArgumentException("List must not contain entries with duplicate keys");
         }
       }
     }
 
+    this.list = list.clone();
+
     // sort list from low to high by keys
-    Arrays.sort(list, Comparator.comparingDouble(t0 -> t0.key));
-    this.list = list;
+    Arrays.sort(this.list, Comparator.comparingDouble(t0 -> t0.key));
   }
 
   /**
-   * Finds the first entry in the lookup table with the exact provided key value
+   * Finds the first entry in the lookup table with exactly the provided key value
    * @param key the key to search for
    * @return the first entry in the table with the provided key, or null if none are found
    */
   public Entry getKeyExact(double key) {
-    for (Entry i : list) {
-      if (i.key == key) {
-        return i;
-      }
-    }
+    int idx =
+        Arrays.binarySearch(
+            list,
+            new Entry(key, 0.0, 0.0),
+            Comparator.comparingDouble(t0 -> t0.key)
+        );
 
-    return null;
+    if (idx >= 0) {
+      return list[idx];
+
+    } else {
+      return null;
+    }
   }
 
   /**
@@ -76,27 +95,30 @@ public class LookupTable {
    * @implNote assumes that `list` is sorted low to high by keys, and has at least 2 entries
    */
   public Entry getKeyInterpolate(double key) {
-    Entry above = null; // the entry "above" the requested one
-    Entry below = null; // the entry "below" the requested one
+    Entry above; // the entry "above" the requested one
+    Entry below; // the entry "below" the requested one
 
-    // check for requested key being between two in table or below any in table
-    for (int i = 0; i < list.length; i++) {
-      if (list[i].key > key) { // first entry with key greater than requested
-        if (i == 0) { // requested key is below any in table
-          above = list[1];
-          below = list[0];
-        } else { // requested key is between two in table
-          above = list[i];
-          below = list[i - 1];
-        }
-        break;
-      }
-    }
+    int idx =
+        Arrays.binarySearch(
+            list,
+            new Entry(key, 0.0, 0.0),
+            Comparator.comparingDouble(t0 -> t0.key)
+        );
 
-    // check for requested key being above any in table
-    if (above == null || below == null) { // requested key is above any in table
+    if (idx >= 0) { // key exactly in table
+      return list[idx];
+
+    } else if (idx == -1) { // key below all in table
+      above = list[1];
+      below = list[0];
+
+    } else if (idx == -(list.length + 1)) { // key above all in table
       above = list[list.length - 1];
       below = list[list.length - 2];
+
+    } else { // key between two in table
+      above = list[-idx - 1]; // above = insertion index
+      below = list[-idx - 2]; // below = 1 below insertion index
     }
 
     // get values corresponding to requested key
