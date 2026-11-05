@@ -13,7 +13,7 @@ import org.firstinspires.ftc.teamcode.hardware.servos.Axon;
 @Configurable
 @TeleOp(name = "Axon Tuner", group = "Tuning")
 public class AxonTuner extends OpMode {
-  public static double TARGET_DEGREES = 360.0;
+  public static double TARGET_DEGREES;
 
   Axon axon;
   TelemetryManager tlm;
@@ -24,6 +24,7 @@ public class AxonTuner extends OpMode {
     Axon.TELEMETRY_ENABLE = true;
     axon.init();
     tlm = PanelsTelemetry.INSTANCE.getTelemetry();
+    TARGET_DEGREES = 360.0;
   }
 
   @Override

@@ -4,7 +4,7 @@
  */
 package org.firstinspires.ftc.teamcode.hardware.servos;
 
-import static org.firstinspires.ftc.teamcode.constants.UpdateTolerance.SERVO_UPDATE_TOLERANCE;
+import static org.firstinspires.ftc.teamcode.constants.Tolerances.SERVO_UPDATE_TOLERANCE;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.COMPARISON_THRESHOLD;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.areEqual;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.clamp;
