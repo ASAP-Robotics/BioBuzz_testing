@@ -156,4 +156,23 @@ public class MathUtils {
   public static double rpmToAngleUnitsPerSecond(AngleUnit unit, double rpm) {
     return unit.fromDegrees(rpm * 6.0); // 6 = 360 / 60
   }
+
+  /**
+   * Converts a number of ticks (from an encoder) to an angle of a given unit
+   *
+   * @param ticks the number of ticks to convert to an angle
+   * @param ticksPerRev the number of ticks in one full rotation
+   * @param unit the unit to convert the ticks to
+   * @return the provided number of ticks, converted into the provided angle unit
+   */
+  public static double ticksToAngleUnits(int ticks, double ticksPerRev, AngleUnit unit) {
+    if (Double.isNaN(ticksPerRev)
+        || Double.isInfinite(ticksPerRev)
+        || ticksPerRev == 0.0
+        || unit == null) {
+      throw new IllegalArgumentException("Ticks per rev must be valid, and unit must not be null");
+    }
+
+    return unit.fromDegrees(ticks / ticksPerRev * 360.0);
+  }
 }

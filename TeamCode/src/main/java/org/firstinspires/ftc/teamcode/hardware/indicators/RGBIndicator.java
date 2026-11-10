@@ -1,7 +1,7 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.hardware.indicators;
 
-import static org.firstinspires.ftc.teamcode.constants.UpdateTolerance.SERVO_UPDATE_TOLERANCE;
+import static org.firstinspires.ftc.teamcode.constants.Tolerances.SERVO_UPDATE_TOLERANCE;
 
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;

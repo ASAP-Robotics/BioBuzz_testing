@@ -212,13 +212,13 @@ public class Flywheel implements System, MonitoredSystem {
   /** Updates telemetry data sent from the flywheel */
   private void updateTelemetry() {
     if (!TUNING) return; // only show telemetry if tuning
-    tlm.addData("Target RPM", targetRpm);
-    tlm.addData("Actual RPM", actualRpm);
-    tlm.addData("Simulated RPM", rpmSimulation.getValue());
-    tlm.addData("Status", status);
-    tlm.addData("Inst. RPM error", Math.abs(targetRpm - actualRpm));
-    tlm.addData("Avg. RPM error", averageRpmError.getAverage().average);
-    tlm.addData("Avg. reading #", averageRpmError.getAverage().readingNumber);
-    tlm.addData("Motor overcurrent", motor.isOverCurrent());
+    tlm.addData("Flywheel target RPM", targetRpm);
+    tlm.addData("Flywheel actual RPM", actualRpm);
+    tlm.addData("Flywheel simulated RPM", rpmSimulation.getValue());
+    tlm.addData("Flywheel status", status);
+    tlm.addData("Flywheel inst. RPM error", Math.abs(targetRpm - actualRpm));
+    tlm.addData("Flywheel avg. RPM error", averageRpmError.getAverage().average);
+    tlm.addData("Flywheel avg. reading #", averageRpmError.getAverage().readingNumber);
+    tlm.addData("Flywheel motor overcurrent", motor.isOverCurrent());
   }
 }

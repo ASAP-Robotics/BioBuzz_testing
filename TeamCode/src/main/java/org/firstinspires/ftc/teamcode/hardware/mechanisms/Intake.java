@@ -1,7 +1,7 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
-import static org.firstinspires.ftc.teamcode.constants.UpdateTolerance.MOTOR_UPDATE_TOLERANCE;
+import static org.firstinspires.ftc.teamcode.constants.Tolerances.MOTOR_UPDATE_TOLERANCE;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.angleUnitsPerSecondToRpm;
 
 import com.bylazar.configurables.annotations.Configurable;

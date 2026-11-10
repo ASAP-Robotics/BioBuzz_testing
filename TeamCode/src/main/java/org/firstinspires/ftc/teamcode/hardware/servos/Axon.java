@@ -4,11 +4,10 @@
  */
 package org.firstinspires.ftc.teamcode.hardware.servos;
 
-import static java.lang.Math.max;
-import static java.lang.Math.min;
-import static org.firstinspires.ftc.teamcode.constants.UpdateTolerance.SERVO_UPDATE_TOLERANCE;
+import static org.firstinspires.ftc.teamcode.constants.Tolerances.SERVO_UPDATE_TOLERANCE;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.COMPARISON_THRESHOLD;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.areEqual;
+import static org.firstinspires.ftc.teamcode.utils.MathUtils.clamp;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.getDifferenceCircular;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.map;
 
@@ -223,9 +222,11 @@ public class Axon implements MonitoredSystem, System {
 
     // update "at target" & operational status
     boolean encoderAtTarget =
-        Math.abs(getDifferenceCircular(getPosition(), getTargetPosition(), 360.0, 0.0))
+        Math.abs(getDifferenceCircular(positionDegrees, targetPositionDegrees, 360.0, 0.0))
             <= toleranceDegrees;
-    boolean followerAtTarget = movementSimulation.isAtTarget();
+    boolean followerAtTarget =
+        movementSimulation.isAtTarget()
+            && areEqual(movementSimulation.getTarget(), targetPositionDegrees);
     // status being inconsistent is OK, it's primarily for driver info
     status = followerAtTarget && !encoderAtTarget ? SystemStatus.FALLBACK : SystemStatus.NOMINAL;
     // eventually being considered "at target" when jammed is intentional
@@ -250,9 +251,10 @@ public class Axon implements MonitoredSystem, System {
    * @param degrees the target position of the Axon, in degrees
    */
   public void setPosition(double degrees) {
-    if (Double.isNaN(degrees) || Double.isInfinite(degrees) || degrees < 0.0 || degrees > 360.0) {
+    if (Double.isNaN(degrees) || Double.isInfinite(degrees)) {
       throw new IllegalArgumentException("Position must be a finite number 0 to 360");
     }
+    degrees = clamp(degrees, 0.0, 360.0);
     targetFollower.setTarget(degrees);
     targetFollower.setValue(degrees);
     update();
@@ -277,9 +279,10 @@ public class Axon implements MonitoredSystem, System {
    * @see setSpeed
    */
   public void setPositionSlow(double degrees) {
-    if (Double.isNaN(degrees) || Double.isInfinite(degrees) || degrees < 0.0 || degrees > 360.0) {
+    if (Double.isNaN(degrees) || Double.isInfinite(degrees)) {
       throw new IllegalArgumentException("Position must be a finite number 0 to 360");
     }
+    degrees = clamp(degrees, 0.0, 360.0);
     targetFollower.setTarget(degrees);
     update();
   }
@@ -343,10 +346,8 @@ public class Axon implements MonitoredSystem, System {
    * @return the current position of the axon, in degrees
    */
   private double readPositionDegrees() {
-    // 0v = 0 degrees, 3.3v = 360 degrees
-    // This is older code that worked, but I don't like how it handles dead banding of the encoder
-    // Waiting until hardware testing to change ("don't fix what's not broken" mentality)
-    return min(360, max(0, map(360 - ((encoder.getVoltage() / 3.3) * 360), 20, 340, 0, 360)));
+    // This code works. It looks weird, but actually finds angles to within +-1 degree. Don't touch.
+    return clamp(map(encoder.getVoltage(), 0.0, encoder.getMaxVoltage(), 380.0, -20.0), 0.0, 360.0);
   }
 
   /** Updates the telemetry from this Axon */
@@ -356,5 +357,6 @@ public class Axon implements MonitoredSystem, System {
     tlm.addData(name + " Actual position", getPosition());
     tlm.addData(name + " At target", atTarget());
     tlm.addData(name + " Target speed", getTargetSpeed());
+    tlm.addData(name + " Simulated position", movementSimulation.getValue());
   }
 }
