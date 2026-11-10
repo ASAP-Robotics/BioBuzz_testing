@@ -224,8 +224,9 @@ public class Axon implements MonitoredSystem, System {
     boolean encoderAtTarget =
         Math.abs(getDifferenceCircular(positionDegrees, targetPositionDegrees, 360.0, 0.0))
             <= toleranceDegrees;
-    boolean followerAtTarget = movementSimulation.isAtTarget() &&
-            areEqual(movementSimulation.getTarget(), targetPositionDegrees);
+    boolean followerAtTarget =
+        movementSimulation.isAtTarget()
+            && areEqual(movementSimulation.getTarget(), targetPositionDegrees);
     // status being inconsistent is OK, it's primarily for driver info
     status = followerAtTarget && !encoderAtTarget ? SystemStatus.FALLBACK : SystemStatus.NOMINAL;
     // eventually being considered "at target" when jammed is intentional

@@ -166,10 +166,10 @@ public class MathUtils {
    * @return the provided number of ticks, converted into the provided angle unit
    */
   public static double ticksToAngleUnits(int ticks, double ticksPerRev, AngleUnit unit) {
-    if (Double.isNaN(ticksPerRev) ||
-        Double.isInfinite(ticksPerRev) ||
-        ticksPerRev == 0.0 ||
-        unit == null) {
+    if (Double.isNaN(ticksPerRev)
+        || Double.isInfinite(ticksPerRev)
+        || ticksPerRev == 0.0
+        || unit == null) {
       throw new IllegalArgumentException("Ticks per rev must be valid, and unit must not be null");
     }
 

@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
 import static org.firstinspires.ftc.teamcode.constants.Tolerances.MOTOR_UPDATE_TOLERANCE;
@@ -15,7 +14,6 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.hardware.sensors.BreakBeam;
@@ -28,9 +26,7 @@ import org.firstinspires.ftc.teamcode.utils.TimeWindowAverage;
 
 @Configurable
 public class Turret implements MonitoredSystem, System {
-  /**
-   * Simple enum to represent operating state of turret
-   */
+  /** Simple enum to represent operating state of turret */
   public enum State {
     /** Turret is disabled, and no motor power is applied */
     DISABLED,
@@ -40,65 +36,91 @@ public class Turret implements MonitoredSystem, System {
     HOMING
   }
 
-  //**Constant vals*********************************************************************************
+  // **Constant
+  // vals*********************************************************************************
   /** How many encoder ticks are in one full rotation of the turret (not the motor) */
   private static final double TICKS_PER_REV = 100.0; // todo use actual value
 
-  //**Tunable vals**********************************************************************************
+  // **Tunable
+  // vals**********************************************************************************
   /** If telemetry from turret should be updated each loop */
   public static boolean TELEMETRY_ENABLE = false;
+
   /** The speed below which, if the turret moves at it, the turret will be considered stuck */
   public static double POSITION_SIM_DEGREES_PER_SECOND = 100.0; // todo tune
+
   /** The speed that the turret will attempt to move at when going to a set target */
   public static double NORMAL_DEGREES_PER_SECOND = Double.POSITIVE_INFINITY;
+
   /** The speed the turret will attempt to move at when homing */
   public static double HOMING_DEGREES_PER_SECOND = 60.0; // todo tune
+
   /** Roughly how close the turret can be to its target position and be "at target" */
   public static double TOLERANCE_DEGREES = 1.0;
+
   /** The center position of the turrets physical range of motion */
   public static double FLIP_POINT_DEGREES = 90.0;
+
   /** The value to offset target positions by, in degrees (if zero, 0 will be at break beam tab) */
   public static double TARGET_OFFSET_DEGREES = 0.0;
+
   /** How large of a time window to monitor encoder value for change over, in milliseconds */
   public static double ENCODER_DISCONNECT_WINDOW = 1000;
+
   /** The minimum number of (identical) encoder readings to base a disconnected state on */
   public static int ENCODER_DISCONNECT_MIN_READINGS = 25;
+
   /** The overcurrent threshold for the turret motor, in amps */
   public static double MAX_OPERATIONAL_MOTOR_CURRENT = 10.0;
+
   /** The maximum power to clamp the motor to if the encoder is thought to be disconnected */
   public static double ENCODER_DISCONNECT_MAX_POWER = 0.2;
+
   /** Turret PID tuning constants */
   public static double KP = 0.0, KI = 0.0, KD = 0.0; // todo tune
 
-  //**Final vars************************************************************************************
+  // **Final
+  // vars************************************************************************************
   /** The motor driving the turret */
   private final DcMotorEx motor;
+
   /** The break beam used to zero the turret's position */
   private final BreakBeam breakBeam;
+
   /** A PID controller to control the turret motor */
   private final PIDController controller;
+
   /** A Follower to enable slow turret movement */
   private final Follower targetFollower;
+
   /** A Follower to approximately simulate the worst acceptable turret movement */
   private final Follower positionSimulation;
+
   /** Used to track if encoder values change at all over time (no change indicates disconnect) */
   private final TimeWindowAverage encoderTracker;
+
   /** Telemetry to send debug / tuning info to */
   private final TelemetryManager tlm;
 
-  //**Static vars***********************************************************************************
+  // **Static
+  // vars***********************************************************************************
   /** Cached value of current alert threshold, to avoid unnecessary hardware writes */
   private static double oldMaxOperationalCurrent = 10.0;
 
-  //**Normal vars***********************************************************************************
+  // **Normal
+  // vars***********************************************************************************
   /** The current state of the turret */
   private State state = State.DISABLED;
+
   /** The current operational status of the turret */
   private SystemStatus status = SystemStatus.UNKNOWN;
+
   /** The position the turret is currently moving to, in degrees */
   private double targetPositionDegrees = 0.0;
+
   /** The position the PID controller of the turret is moving to, in degrees */
   private double subTargetPositionDegrees = 0.0;
+
   /** The position the turret is currently at, in degrees */
   private double currentPositionDegrees = 0.0;
 
@@ -107,7 +129,8 @@ public class Turret implements MonitoredSystem, System {
     this.breakBeam = new BreakBeam(hwMap, breakBeamName);
     this.controller = new PIDController(KP, KI, KD);
     this.targetFollower = new Follower(0.0, 0.0, TOLERANCE_DEGREES, NORMAL_DEGREES_PER_SECOND);
-    this.positionSimulation = new Follower(0.0, 0.0, TOLERANCE_DEGREES, POSITION_SIM_DEGREES_PER_SECOND);
+    this.positionSimulation =
+        new Follower(0.0, 0.0, TOLERANCE_DEGREES, POSITION_SIM_DEGREES_PER_SECOND);
     this.encoderTracker = new TimeWindowAverage((long) ENCODER_DISCONNECT_WINDOW, 1);
     this.tlm = PanelsTelemetry.INSTANCE.getTelemetry();
   }
@@ -177,9 +200,7 @@ public class Turret implements MonitoredSystem, System {
     targetPositionDegrees = normalizeAround(degrees, FLIP_POINT_DEGREES); // constrain value
   }
 
-  /**
-   * Starts homing the turret, recalibrating its "zero position"
-   */
+  /** Starts homing the turret, recalibrating its "zero position" */
   public void home() {
     state = State.HOMING;
     resetEncoder(); // reset motor encoder
@@ -198,9 +219,7 @@ public class Turret implements MonitoredSystem, System {
     return areEqual(currentPositionDegrees, targetPositionDegrees, TOLERANCE_DEGREES);
   }
 
-  /**
-   * Updates configurable tuning values
-   */
+  /** Updates configurable tuning values */
   private void updateTuningValues() {
     positionSimulation.setSpeed(POSITION_SIM_DEGREES_PER_SECOND);
     controller.setPID(KP, KI, KD);
@@ -212,9 +231,7 @@ public class Turret implements MonitoredSystem, System {
     }
   }
 
-  /**
-   * Updates telemetry sent from the turret
-   */
+  /** Updates telemetry sent from the turret */
   private void updateTelemetry() {
     tlm.addData("Turret target pos", targetPositionDegrees);
     tlm.addData("Turret simulated pos", positionSimulation.getValue());
@@ -226,27 +243,20 @@ public class Turret implements MonitoredSystem, System {
     tlm.addData("Turret motor overcurrent", motor.isOverCurrent());
   }
 
-  /**
-   * Reads and updates the current position of the turret (not normalized)
-   */
+  /** Reads and updates the current position of the turret (not normalized) */
   private void updateCurrentPosition() {
     int currentPosTicks = motor.getCurrentPosition();
-    currentPositionDegrees =
-        ticksToAngleUnits(currentPosTicks, TICKS_PER_REV, AngleUnit.DEGREES);
+    currentPositionDegrees = ticksToAngleUnits(currentPosTicks, TICKS_PER_REV, AngleUnit.DEGREES);
     encoderTracker.addReading(currentPosTicks);
   }
 
-  /**
-   * Resets the turret's motor's encoder to consider the current position to be 0
-   */
+  /** Resets the turret's motor's encoder to consider the current position to be 0 */
   private void resetEncoder() {
     motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
   }
 
-  /**
-   * Calculates and applies the correct motor power for the turret
-   */
+  /** Calculates and applies the correct motor power for the turret */
   private void updateMotorPower() {
     double targetMotorPower = controller.calculate(currentPositionDegrees);
     // if the encoder is disconnected, clamp motor power to avoid damage
@@ -274,9 +284,7 @@ public class Turret implements MonitoredSystem, System {
     controller.setSetPoint(subTargetPositionDegrees);
   }
 
-  /**
-   * Handles state-specific behavior, like homing
-   */
+  /** Handles state-specific behavior, like homing */
   private void updateStateSpecificBehavior() {
     switch (state) {
       case DISABLED:
@@ -303,9 +311,7 @@ public class Turret implements MonitoredSystem, System {
     }
   }
 
-  /**
-   * Updates the current operational status of the turret
-   */
+  /** Updates the current operational status of the turret */
   private void updateStatus() {
     switch (state) {
       case DISABLED:
@@ -318,8 +324,8 @@ public class Turret implements MonitoredSystem, System {
             areEqual(currentPositionDegrees, subTargetPositionDegrees, TOLERANCE_DEGREES);
         boolean simAtSubTarget = positionSimulation.isAtTarget();
 
-        if (areEqual(encoderTracker.getMaxMinReadingDifference(), 0.0) &&
-            encoderTracker.getNumReadings() >= ENCODER_DISCONNECT_MIN_READINGS) {
+        if (areEqual(encoderTracker.getMaxMinReadingDifference(), 0.0)
+            && encoderTracker.getNumReadings() >= ENCODER_DISCONNECT_MIN_READINGS) {
           status = SystemStatus.INOPERABLE; // encoder disconnected
         } else if ((simAtSubTarget && !atSubTarget) || motor.isOverCurrent()) {
           status = SystemStatus.COMPROMISED; // turret jammed or stuck

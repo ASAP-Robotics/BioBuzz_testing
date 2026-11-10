@@ -16,9 +16,7 @@ public class PanelsTest extends OpMode {
   TelemetryManager tlm = PanelsTelemetry.INSTANCE.getTelemetry();
 
   @Override
-  public void init() {
-
-  }
+  public void init() {}
 
   @Override
   public void loop() {
@@ -29,7 +27,9 @@ public class PanelsTest extends OpMode {
     tlm.addData("External A (int)", PanelsTestConfig.varA);
     tlm.addData("External B (double)", PanelsTestConfig.varB);
     tlm.addData("External C (boolean)", PanelsTestConfig.varC);
-    tlm.addData("External success", PanelsTestConfig.varA != 0 || PanelsTestConfig.varB != 0.0 || PanelsTestConfig.varC);
+    tlm.addData(
+        "External success",
+        PanelsTestConfig.varA != 0 || PanelsTestConfig.varB != 0.0 || PanelsTestConfig.varC);
     tlm.update();
   }
 }
