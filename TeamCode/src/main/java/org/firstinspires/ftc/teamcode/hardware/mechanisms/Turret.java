@@ -19,9 +19,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.hardware.sensors.BreakBeam;
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
 import org.firstinspires.ftc.teamcode.interfaces.System;
+import org.firstinspires.ftc.teamcode.types.OpModeType;
 import org.firstinspires.ftc.teamcode.types.SystemReport;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
 import org.firstinspires.ftc.teamcode.utils.Follower;
+import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 import org.firstinspires.ftc.teamcode.utils.TimeWindowAverage;
 
 @Configurable
@@ -139,25 +141,25 @@ public class Turret implements MonitoredSystem, System {
   public void init() {
     motor.setMotorDisable();
     motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    motor.setDirection(DcMotor.Direction.FORWARD);
+    motor.setDirection(DcMotor.Direction.FORWARD); // might need to reverse
+    // home on init for Auto OpModes
+    if (OpModeInfo.type == OpModeType.AUTO) {
+      enable();
+      home();
+    }
   }
 
   @Override
   public void initLoop() {
-    // todo add ability to home on init
+    // this is slightly unorthodox, but is the simplest way to make homing on init work
+    if (state != State.DISABLED) {
+      loop();
+    }
   }
 
   @Override
   public void start() {
-    motor.setMotorEnable();
-    updateCurrentPosition();
-    positionSimulation.setValue(currentPositionDegrees);
-    positionSimulation.setTarget(currentPositionDegrees);
-    targetFollower.setValue(currentPositionDegrees);
-    targetFollower.setTarget(currentPositionDegrees);
-    targetPositionDegrees = currentPositionDegrees;
-    controller.reset();
-    state = State.NORMAL;
+    if (state == State.DISABLED) enable();
   }
 
   @Override
@@ -176,8 +178,7 @@ public class Turret implements MonitoredSystem, System {
 
   @Override
   public void stop() {
-    motor.setMotorDisable();
-    state = State.DISABLED;
+    disable();
   }
 
   @Override
@@ -207,6 +208,32 @@ public class Turret implements MonitoredSystem, System {
     targetPositionDegrees = 180.0; // start moving 180 degrees from current position
     targetFollower.setTolerance(0.0);
     targetFollower.setSpeed(HOMING_DEGREES_PER_SECOND);
+  }
+
+  /**
+   * Enables turret motion
+   *
+   * @apiNote This method is exposed in case it is useful, but is called automatically, so most of
+   * the time it isn't necessary to call it
+   */
+  public void enable() {
+    motor.setMotorEnable();
+    updateCurrentPosition();
+    positionSimulation.setValue(currentPositionDegrees);
+    positionSimulation.setTarget(currentPositionDegrees);
+    targetFollower.setValue(currentPositionDegrees);
+    targetFollower.setTarget(currentPositionDegrees);
+    targetPositionDegrees = currentPositionDegrees;
+    controller.reset();
+    state = State.NORMAL;
+  }
+
+  /**
+   * Disables turret motion
+   */
+  public void disable() {
+    motor.setMotorDisable();
+    state = State.DISABLED;
   }
 
   /**

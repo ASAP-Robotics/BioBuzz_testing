@@ -19,9 +19,11 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
 import org.firstinspires.ftc.teamcode.interfaces.System;
+import org.firstinspires.ftc.teamcode.types.OpModeType;
 import org.firstinspires.ftc.teamcode.types.SystemReport;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
 import org.firstinspires.ftc.teamcode.utils.Follower;
+import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 
 /**
  * Class to control Axon servos. Basically a wrapper around the `Servo` class to add encoder
@@ -163,25 +165,25 @@ public class Axon implements MonitoredSystem, System {
   @Override
   public void init() {
     // TODO: maybe add support for completely de-energizing servos on init?
-    if (!dummy) {
-      double posDeg = readPositionDegrees();
-      // hold current position on init
-      targetFollower.setValue(posDeg);
-      targetFollower.setTarget(posDeg);
-      movementSimulation.setValue(posDeg);
-      movementSimulation.setTarget(posDeg);
+    // enable servo movement on init for Autos
+    if (OpModeInfo.type == OpModeType.AUTO) {
+      begin();
     }
-    update();
   }
 
   @Override
   public void initLoop() {
-    update();
+    if (OpModeInfo.type == OpModeType.AUTO) {
+      update();
+    }
   }
 
   @Override
   public void start() {
-    update();
+    // if TeleOp, movement will still be disabled, so enable it
+    if (OpModeInfo.type == OpModeType.TELEOP) {
+      begin();
+    }
   }
 
   @Override
@@ -338,6 +340,21 @@ public class Axon implements MonitoredSystem, System {
    */
   public double getTargetSpeed() {
     return targetFollower.getSpeed();
+  }
+
+  /**
+   * Sets the target position to the current position, for when movement is first enabled
+   */
+  private void begin() {
+    if (!dummy) {
+      double posDeg = readPositionDegrees();
+      // hold current position on init
+      targetFollower.setValue(posDeg);
+      targetFollower.setTarget(posDeg);
+      movementSimulation.setValue(posDeg);
+      movementSimulation.setTarget(posDeg);
+    }
+    update();
   }
 
   /**
