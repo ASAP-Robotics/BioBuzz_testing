@@ -121,7 +121,7 @@ public class Turret implements MonitoredSystem, System {
 
   @Override
   public void initLoop() {
-
+    // todo add ability to home on init
   }
 
   @Override
@@ -206,7 +206,7 @@ public class Turret implements MonitoredSystem, System {
     controller.setPID(KP, KI, KD);
     encoderTracker.setWindowSpan((long) ENCODER_DISCONNECT_WINDOW);
 
-    if (MAX_OPERATIONAL_MOTOR_CURRENT != oldMaxOperationalCurrent) {
+    if (!areEqual(MAX_OPERATIONAL_MOTOR_CURRENT, oldMaxOperationalCurrent)) {
       motor.setCurrentAlert(MAX_OPERATIONAL_MOTOR_CURRENT, CurrentUnit.AMPS);
       oldMaxOperationalCurrent = MAX_OPERATIONAL_MOTOR_CURRENT;
     }
@@ -216,9 +216,14 @@ public class Turret implements MonitoredSystem, System {
    * Updates telemetry sent from the turret
    */
   private void updateTelemetry() {
-    tlm.addData("Target pos", targetPositionDegrees);
-    tlm.addData("Current pos", currentPositionDegrees);
-    tlm.addData("State", state);
+    tlm.addData("Turret target pos", targetPositionDegrees);
+    tlm.addData("Turret simulated pos", positionSimulation.getValue());
+    tlm.addData("Turret current pos", currentPositionDegrees);
+    tlm.addData("Turret PID target", subTargetPositionDegrees);
+    tlm.addData("Turret state", state);
+    tlm.addData("Turret status", status);
+    tlm.addData("Turret encoder reading #", encoderTracker.getNumReadings());
+    tlm.addData("Turret motor overcurrent", motor.isOverCurrent());
   }
 
   /**
