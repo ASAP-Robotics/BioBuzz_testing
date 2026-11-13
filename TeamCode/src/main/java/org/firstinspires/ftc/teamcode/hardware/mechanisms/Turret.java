@@ -38,13 +38,11 @@ public class Turret implements MonitoredSystem, System {
     HOMING
   }
 
-  // **Constant
-  // vals*********************************************************************************
+  // **Constant vals********************************************************************************
   /** How many encoder ticks are in one full rotation of the turret (not the motor) */
   private static final double TICKS_PER_REV = 100.0; // todo use actual value
 
-  // **Tunable
-  // vals**********************************************************************************
+  // **Tunable vals*********************************************************************************
   /** If telemetry from turret should be updated each loop */
   public static boolean TELEMETRY_ENABLE = false;
 
@@ -81,8 +79,7 @@ public class Turret implements MonitoredSystem, System {
   /** Turret PID tuning constants */
   public static double KP = 0.0, KI = 0.0, KD = 0.0; // todo tune
 
-  // **Final
-  // vars************************************************************************************
+  // **Final vars***********************************************************************************
   /** The motor driving the turret */
   private final DcMotorEx motor;
 
@@ -104,13 +101,11 @@ public class Turret implements MonitoredSystem, System {
   /** Telemetry to send debug / tuning info to */
   private final TelemetryManager tlm;
 
-  // **Static
-  // vars***********************************************************************************
+  // **Static vars**********************************************************************************
   /** Cached value of current alert threshold, to avoid unnecessary hardware writes */
   private static double oldMaxOperationalCurrent = 10.0;
 
-  // **Normal
-  // vars***********************************************************************************
+  // **Normal vars**********************************************************************************
   /** The current state of the turret */
   private State state = State.DISABLED;
 

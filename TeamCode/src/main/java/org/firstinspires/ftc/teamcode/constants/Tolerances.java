@@ -14,4 +14,7 @@ public class Tolerances {
 
   /** The max allowable change in a motor target power before a new value should be sent */
   public static double MOTOR_UPDATE_TOLERANCE = 0.01;
+
+  /** The max allowable deviation in a motor current alert before a new value should be set (amps) */
+  public static double MOTOR_CURRENT_TOLERANCE_A = 0.1;
 }
