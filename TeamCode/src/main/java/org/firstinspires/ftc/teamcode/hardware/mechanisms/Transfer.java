@@ -12,8 +12,8 @@ import org.firstinspires.ftc.teamcode.types.SystemStatus;
  */
 public class Transfer extends SpinningThing {
   public enum State {
-    STANDBY(0, 0, 8, true),
-    LIFTING(1, 383, 8, true),
+    DISABLED(0.0, 0.0, 8, false),
+    INTAKING(1, 383, 8, true),
     EJECTING(-0.7, -268, 6, true),
     SHOOTING(1, 383, 8, false);
 
@@ -36,12 +36,6 @@ public class Transfer extends SpinningThing {
   /** The amount of time to lift pollen for when intaking */
   public static double LIFT_TIME_MS = 1500;
 
-  /** The amount of time to eject for when (manually) ejecting */
-  public static double EJECT_TIME_MS = 750;
-
-  /** The amount of time to lift pollen for when shooting */
-  public static double SHOOT_TIME_MS = 2500;
-
   /** The servo position when the blocker is retracted (degrees) */
   public static double BLOCKER_RETRACTED_POSITION = 0.0; // todo tune
 
@@ -54,17 +48,11 @@ public class Transfer extends SpinningThing {
   /** The Axon moving the top blocker that prevents pollen from entering the turret */
   private final Axon topBlocker;
 
-  /** Timer to track how long the current state has been active */
-  protected final ElapsedTime stateTime;
-
-  /** The time since the state was last set (even if it was re-set tot the same state) */
-  private final ElapsedTime stateSetTime;
+  /** The time since the sensor beam was last broken */
+  private final ElapsedTime beamBrokenTimer;
 
   /** The operating state of the transfer */
-  private State state = State.STANDBY;
-
-  /** Last read state of the sensor, for change detection */
-  private BreakBeam.State oldSensorState = BreakBeam.State.UNBROKEN;
+  private State state = State.INTAKING;
 
   public Transfer(HardwareMap hwMap,
                   String motorName,
@@ -74,38 +62,26 @@ public class Transfer extends SpinningThing {
     super(hwMap, motorName);
     this.sensor = new BreakBeam(hwMap, sensorName);
     this.topBlocker = new Axon(Axon.Type.MAX, hwMap, servoName, servoEncoderName);
-    this.stateTime = new ElapsedTime();
-    this.stateSetTime = new ElapsedTime(Long.MAX_VALUE / 2); // don't turn on upon start
+    this.beamBrokenTimer = new ElapsedTime();
   }
 
   @Override
   public void loop() {
-    BreakBeam.State sensorState = sensor.getState();
-    if (state != State.SHOOTING &&
-        sensorState == BreakBeam.State.BROKEN &&
-        oldSensorState == BreakBeam.State.UNBROKEN) {
-      setState(State.LIFTING); // start lifting pollen further up into robot if present
-    }
-    oldSensorState = sensorState;
-
-    if (state == State.EJECTING && stateTime.milliseconds() > EJECT_TIME_MS) {
-      setState(State.STANDBY);
-    } else if (state == State.SHOOTING && stateTime.milliseconds() > SHOOT_TIME_MS) {
-      setState(State.STANDBY);
-    } else if (state == State.LIFTING && stateSetTime.milliseconds() > LIFT_TIME_MS) {
-      setState(State.STANDBY);
+    if (sensor.getState() == BreakBeam.State.BROKEN) {
+      beamBrokenTimer.reset();
     }
 
-    targetMotorPower = topBlocker.atTarget() ? state.motorPower : 0.0; // don't jam blocker
+    topBlocker.setPosition(
+        state.blockerDeployed ? BLOCKER_DEPLOYED_POSITION : BLOCKER_RETRACTED_POSITION
+    );
+
+    boolean disable = !topBlocker.atTarget() ||
+        (state == State.INTAKING && beamBrokenTimer.milliseconds() > LIFT_TIME_MS);
+    targetMotorPower = disable ? 0.0 : state.motorPower; // don't jam blocker
+    currentAlertVal = state.targetMaxCurrent;
+    speedAlertVal = disable ? 0.0 : state.targetMinRpm; // don't give false alerts
 
     super.loop();
-  }
-
-  /**
-   * Starts lifting pollen into turret to shoot
-   */
-  public void shoot() {
-    setState(State.SHOOTING);
   }
 
   /**
@@ -113,31 +89,29 @@ public class Transfer extends SpinningThing {
    *
    * @param state the transfer's state
    */
-  private void setState(State state) {
+  public void setState(State state) {
     if (state == null) {
       throw new IllegalArgumentException("State must not be null");
     }
-    if (this.state != state) stateTime.reset();
 
     this.state = state;
+  }
 
-    targetMotorPower = state.motorPower; // might be redundant, but harmless
-    currentAlertVal = state.targetMaxCurrent;
-    speedAlertVal = state.targetMinRpm;
-
-    topBlocker.setPosition(
-        state.blockerDeployed ? BLOCKER_DEPLOYED_POSITION : BLOCKER_RETRACTED_POSITION
-    );
-
-    stateSetTime.reset();
+  /**
+   * Gets the state of the transfer
+   *
+   * @return the transfer's state
+   */
+  public State getState() {
+    return state;
   }
 
   @Override
   protected void updateStatus() {
-    if (state == State.STANDBY) {
+    if (state == State.DISABLED) {
       status = SystemStatus.INACTIVE;
 
-    } else if (overcurrent) {
+    } else if (overcurrent || underspeed) {
       status = SystemStatus.FALLBACK;
 
     } else {
@@ -154,6 +128,6 @@ public class Transfer extends SpinningThing {
     tlm.addData("Transfer avg. RPM", rpmAverage.getAverage().average);
     tlm.addData("Transfer avg. reading #", rpmAverage.getNumReadings());
     tlm.addData("Transfer motor overcurrent", overcurrent);
-    tlm.addData("Transfer sensor state", oldSensorState);
+    tlm.addData("Transfer sensor time since broken", beamBrokenTimer.milliseconds());
   }
 }

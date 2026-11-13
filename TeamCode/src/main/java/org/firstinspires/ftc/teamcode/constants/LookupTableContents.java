@@ -3,6 +3,8 @@ package org.firstinspires.ftc.teamcode.constants;
 import org.firstinspires.ftc.teamcode.utils.LookupTable;
 
 public class LookupTableContents {
+  // todo tune
+
   /**
    * The aiming lookup table. Key is distance in inches, value1 is RPM, value2 is angle value
    */

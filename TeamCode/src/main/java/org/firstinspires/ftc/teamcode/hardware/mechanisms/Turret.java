@@ -186,14 +186,22 @@ public class Turret implements MonitoredSystem, System {
    *
    * @param degrees the target position of the turret
    */
-  public void setPosition(double degrees) {
+  public void setPosition(double degrees, boolean allowFlipping) {
     if (Double.isNaN(degrees) || Double.isInfinite(degrees)) {
       throw new IllegalArgumentException("Degrees must be a finite number");
     }
+
+    // todo test, also some of this could probably be done in a more elegant way
+
     if (state == State.HOMING) return; // disallow setting position if homing
 
     degrees += TARGET_OFFSET_DEGREES; // apply target offset
-    targetPositionDegrees = normalizeAround(degrees, FLIP_POINT_DEGREES); // constrain value
+    degrees = normalizeAround(degrees, FLIP_POINT_DEGREES); // normalize, constrain (will flip)
+
+    // if target position is more than 180 degrees different, it will probably have flipped
+    if (allowFlipping || (Math.abs(degrees - targetPositionDegrees) <= 180.0)) {
+      targetPositionDegrees = degrees;
+    }
   }
 
   /** Starts homing the turret, recalibrating its "zero position" */

@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.types.SystemStatus;
 public class Intake extends SpinningThing {
   public enum State {
     DISABLED(0, 0, 8),
-    ACTIVE(1, 533, 8),
+    INTAKING(1, 533, 8),
     EJECTING(-0.7, -373, 6);
 
     State(double motorPower, double targetMinRpm, double targetMaxCurrent) {
@@ -64,6 +64,15 @@ public class Intake extends SpinningThing {
   }
 
   @Override
+  public void loop() {
+    targetMotorPower = state.motorPower;
+    currentAlertVal = state.targetMaxCurrent;
+    speedAlertVal = state.targetMinRpm;
+
+    super.loop();
+  }
+
+  @Override
   public void stop() {
     super.stop();
     state = State.DISABLED;
@@ -90,14 +99,9 @@ public class Intake extends SpinningThing {
     }
     if (this.state == state) return;
 
-    // start timing how long this state has been active
-    stateTime.reset();
-
-    stalled = false;
+    stalled = false; // reset stalled status
     this.state = state;
-    targetMotorPower = state.motorPower;
-    currentAlertVal = state.targetMaxCurrent;
-    speedAlertVal = state.targetMinRpm;
+    stateTime.reset();
   }
 
   /**

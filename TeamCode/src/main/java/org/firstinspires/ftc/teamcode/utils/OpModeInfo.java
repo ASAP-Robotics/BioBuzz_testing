@@ -12,4 +12,5 @@ import org.firstinspires.ftc.teamcode.types.OpModeType;
 public class OpModeInfo {
   public static OpModeType type = OpModeType.TELEOP;
   public static AllianceColor color = AllianceColor.RED;
+  public static boolean robotLoaded = false;
 }
