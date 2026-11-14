@@ -37,10 +37,10 @@ public class Transfer extends SpinningThing {
   public static double LIFT_TIME_MS = 1500;
 
   /** The servo position when the blocker is retracted (degrees) */
-  public static double BLOCKER_RETRACTED_POSITION = 0.0; // todo tune
+  public static double BLOCKER_RETRACTED_POSITION = 47.0;
 
   /** The servo position when the blocker is deployed (degrees) */
-  public static double BLOCKER_DEPLOYED_POSITION = 60.0; // todo tune
+  public static double BLOCKER_DEPLOYED_POSITION = 0.0;
 
   /** The sensor in front of th transfer to detect pollen */
   private final BreakBeam sensor;
