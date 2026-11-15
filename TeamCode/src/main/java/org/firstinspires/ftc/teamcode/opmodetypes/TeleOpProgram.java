@@ -40,7 +40,7 @@ public class TeleOpProgram extends CommonProgram {
     if (gamepad1.aWasPressed()) { // switch target
       robot.scoringSystem.switchTarget();
     }
-    if (gamepad1.bWasPressed()) { // eject
+    if (gamepad1.bWasPressed()) { // eject all
       robot.scoringSystem.eject();
     }
     if (gamepad1.xWasPressed()) { // toggle flower ramp
@@ -48,6 +48,9 @@ public class TeleOpProgram extends CommonProgram {
           robot.flowerRamp.getState() == FlowerRamp.State.STOWED ?
               FlowerRamp.State.DEPLOYED : FlowerRamp.State.STOWED
       );
+    }
+    if (gamepad1.yWasPressed()) { // eject intake
+      robot.scoringSystem.ejectIntake();
     }
 
     double forward = -gamepad1.left_stick_y;

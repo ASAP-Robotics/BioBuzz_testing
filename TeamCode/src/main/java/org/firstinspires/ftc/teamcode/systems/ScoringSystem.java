@@ -30,7 +30,8 @@ import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 public class ScoringSystem implements System {
   public enum State {
     INTAKING,
-    EJECTING,
+    EJECTING_ALL,
+    EJECTING_INTAKE,
     FULL,
     SHOT_QUEUED,
     SHOOTING
@@ -157,7 +158,14 @@ public class ScoringSystem implements System {
    * Ejects both the front intake and the transfer
    */
   public void eject() {
-    setState(State.EJECTING);
+    setState(State.EJECTING_ALL);
+  }
+
+  /**
+   * Ejects just the intake, and disables the transfer
+   */
+  public void ejectIntake() {
+    setState(State.EJECTING_INTAKE);
   }
 
   /**
@@ -197,9 +205,18 @@ public class ScoringSystem implements System {
         aimRest();
         break;
 
-      case EJECTING:
+      case EJECTING_ALL:
         intake.setState(Intake.State.EJECTING);
         transfer.setState(Transfer.State.EJECTING);
+        aimRest();
+        if (stateTime.milliseconds() > EJECTING_TIME_MS) {
+          setState(State.INTAKING);
+        }
+        break;
+
+      case EJECTING_INTAKE:
+        intake.setState(Intake.State.EJECTING);
+        transfer.setState(Transfer.State.DISABLED);
         aimRest();
         if (stateTime.milliseconds() > EJECTING_TIME_MS) {
           setState(State.INTAKING);
