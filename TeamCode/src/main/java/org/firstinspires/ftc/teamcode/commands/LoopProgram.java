@@ -9,18 +9,19 @@ import com.pedropathing.ivy.behaviors.EndCondition;
 import com.pedropathing.ivy.behaviors.InterruptedBehavior;
 
 import org.firstinspires.ftc.teamcode.configurations.RobotHardware;
+import org.firstinspires.ftc.teamcode.opmodetypes.CommonProgram;
 
 import java.util.Collections;
 import java.util.Set;
 
 /**
- * Command to call the loop() methods of the robot hardware code
+ * Command to call the loop() method of a program
  */
-public class UpdateRobot implements Command {
-  private final RobotHardware robot;
+public class LoopProgram implements Command {
+  private final CommonProgram program;
 
-  public UpdateRobot(RobotHardware robot) {
-    this.robot = robot;
+  public LoopProgram(CommonProgram program) {
+    this.program = program;
   }
 
   @Override
@@ -55,12 +56,12 @@ public class UpdateRobot implements Command {
 
   @Override
   public boolean done() {
-    return false;
+    return false; // never done
   }
 
   @Override
   public void execute() {
-    robot.loop();
+    program.loop();
   }
 
   @Override
