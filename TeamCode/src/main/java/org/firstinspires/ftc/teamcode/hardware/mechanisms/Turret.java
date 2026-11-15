@@ -40,7 +40,7 @@ public class Turret implements MonitoredSystem, System {
 
   // **Constant vals********************************************************************************
   /** How many encoder ticks are in one full rotation of the turret (not the motor) */
-  private static final double TICKS_PER_REV = 100.0; // todo use actual value
+  private static final double TICKS_PER_REV = 	((1.0+(46.0/11.0)) * 24.0) / 165.0;
 
   // **Tunable vals*********************************************************************************
   /** If telemetry from turret should be updated each loop */

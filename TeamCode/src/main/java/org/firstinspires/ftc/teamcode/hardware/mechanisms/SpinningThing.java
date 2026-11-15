@@ -42,7 +42,7 @@ public abstract class SpinningThing implements System, MonitoredSystem {
   protected static final AngleUnit ANGLE_UNIT = AngleUnit.DEGREES;
 
   /** The motor driving the spinning thing */
-  private final DcMotorEx motor;
+  protected final DcMotorEx motor;
 
   /** An average of the speed of the spinning thing, to detect stalls and encoder disconnects*/
   protected final TimeWindowAverage rpmAverage;

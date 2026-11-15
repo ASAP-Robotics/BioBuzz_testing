@@ -2,6 +2,7 @@
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
 import com.bylazar.configurables.annotations.Configurable;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
@@ -52,6 +53,8 @@ public class Intake extends SpinningThing {
     targetMotorPower = state.motorPower;
 
     super.init();
+
+    motor.setDirection(DcMotorSimple.Direction.REVERSE);
 
     stateTime.reset();
   }

@@ -1,58 +1,61 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.configurations;
 
+import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.teamcode.hardware.indicators.RGBIndicator;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Flywheel;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.interfaces.System;
+import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.systems.ScoringSystem;
 
 /** Class to encapsulate, expose, and set up the main robot's hardware */
 public class RobotHardware implements System {
-  public final Intake intake;
-  public final Flywheel flywheel;
-  public final RGBIndicator indicator;
+  public final ScoringSystem scoringSystem;
+  public final Follower follower;
 
-  // more will be added later
+  // todo add flower intake
 
   public RobotHardware(HardwareMap hwMap) {
-    this.intake = new Intake(hwMap, "IntakeMotor");
-    this.flywheel = new Flywheel(hwMap, "FlywheelMotor");
-    this.indicator = new RGBIndicator(hwMap, "Indicator1");
+    this.scoringSystem =
+        new ScoringSystem(
+            hwMap,
+            "Intake",
+            "Transfer",
+            "TransferSensor",
+            "Blocker",
+            "BlockerEncoder",
+            "Flywheel",
+            "Turret",
+            "TurretSensor"
+        );
+
+    this.follower = Constants.create(hwMap);
   }
 
   @Override
   public void init() {
-    intake.init();
-    flywheel.init();
-    indicator.init();
+    scoringSystem.init();
   }
 
   @Override
   public void initLoop() {
-    intake.initLoop();
-    flywheel.initLoop();
-    indicator.initLoop();
+    scoringSystem.initLoop();
   }
 
   @Override
   public void start() {
-    intake.start();
-    flywheel.start();
-    indicator.start();
+    scoringSystem.start();
   }
 
   @Override
   public void loop() {
-    intake.loop();
-    flywheel.loop();
-    indicator.loop();
+    scoringSystem.loop();
   }
 
   @Override
   public void stop() {
-    intake.stop();
-    flywheel.stop();
-    indicator.stop();
+    scoringSystem.stop();
   }
 }

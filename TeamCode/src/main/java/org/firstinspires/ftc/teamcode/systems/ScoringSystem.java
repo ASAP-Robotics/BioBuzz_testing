@@ -179,6 +179,14 @@ public class ScoringSystem implements System {
   }
 
   /**
+   * Gets the state of the scoring system
+   * @return the current state
+   */
+  public State getState() {
+    return state;
+  }
+
+  /**
    * Updates logic to do with the current state
    */
   private void updateStateLogic() {
