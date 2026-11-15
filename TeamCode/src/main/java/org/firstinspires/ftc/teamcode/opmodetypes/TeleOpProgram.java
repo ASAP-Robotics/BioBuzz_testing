@@ -1,9 +1,12 @@
+/** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
+
 package org.firstinspires.ftc.teamcode.opmodetypes;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.hardware.mechanisms.FlowerRamp;
 
 /**
  * Class to contain TeleOp program behavior
@@ -39,6 +42,12 @@ public class TeleOpProgram extends CommonProgram {
     }
     if (gamepad1.bWasPressed()) { // eject
       robot.scoringSystem.eject();
+    }
+    if (gamepad1.xWasPressed()) { // toggle flower ramp
+      robot.flowerRamp.setState(
+          robot.flowerRamp.getState() == FlowerRamp.State.STOWED ?
+              FlowerRamp.State.DEPLOYED : FlowerRamp.State.STOWED
+      );
     }
 
     double forward = -gamepad1.left_stick_y;

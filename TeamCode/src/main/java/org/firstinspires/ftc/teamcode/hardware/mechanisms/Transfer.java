@@ -1,5 +1,8 @@
+/** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
+
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
+import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -10,6 +13,7 @@ import org.firstinspires.ftc.teamcode.types.SystemStatus;
 /**
  * Class to control the transfer between the front intake and the turret.
  */
+@Configurable
 public class Transfer extends SpinningThing {
   public enum State {
     DISABLED(0.0, 0.0, 8, false),

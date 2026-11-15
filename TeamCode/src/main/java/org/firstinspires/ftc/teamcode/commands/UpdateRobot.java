@@ -1,3 +1,5 @@
+/** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
+
 package org.firstinspires.ftc.teamcode.commands;
 
 import com.pedropathing.ivy.Command;
@@ -58,7 +60,7 @@ public class UpdateRobot implements Command {
 
   @Override
   public void execute() {
-    robot.scoringSystem.loop();
+    robot.loop();
   }
 
   @Override

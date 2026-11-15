@@ -39,8 +39,15 @@ public class Turret implements MonitoredSystem, System {
   }
 
   // **Constant vals********************************************************************************
+  private static final int MOTOR_GEAR_TEETH = 24;
+
+  private static final double TURRET_GEAR_TEETH = 65; // todo check, this doesn't seem right
+
+  private static final double MOTOR_TICKS_PER_REV = (1.0+(46.0/11.0)) * 28;
+
   /** How many encoder ticks are in one full rotation of the turret (not the motor) */
-  private static final double TICKS_PER_REV = 	((1.0+(46.0/11.0)) * 24.0) / 165.0;
+  private static final double TICKS_PER_REV =
+      MOTOR_TICKS_PER_REV * TURRET_GEAR_TEETH / MOTOR_GEAR_TEETH;
 
   // **Tunable vals*********************************************************************************
   /** If telemetry from turret should be updated each loop */
@@ -53,7 +60,7 @@ public class Turret implements MonitoredSystem, System {
   public static double NORMAL_DEGREES_PER_SECOND = Double.POSITIVE_INFINITY;
 
   /** The speed the turret will attempt to move at when homing */
-  public static double HOMING_DEGREES_PER_SECOND = 60.0; // todo tune
+  public static double HOMING_DEGREES_PER_SECOND = 30.0; // todo tune
 
   /** Roughly how close the turret can be to its target position and be "at target" */
   public static double TOLERANCE_DEGREES = 1.0;
@@ -120,6 +127,8 @@ public class Turret implements MonitoredSystem, System {
 
   /** The position the turret is currently at, in degrees */
   private double currentPositionDegrees = 0.0;
+
+  // todo fix broken encoder logic / math
 
   public Turret(HardwareMap hwMap, String motorName, String breakBeamName) {
     this.motor = hwMap.get(DcMotorEx.class, motorName);
@@ -266,15 +275,18 @@ public class Turret implements MonitoredSystem, System {
     tlm.addData("Turret target pos", targetPositionDegrees);
     tlm.addData("Turret simulated pos", positionSimulation.getValue());
     tlm.addData("Turret current pos", currentPositionDegrees);
+    tlm.addData("Turret pos ticks", motor.getCurrentPosition());
     tlm.addData("Turret PID target", subTargetPositionDegrees);
     tlm.addData("Turret state", state);
     tlm.addData("Turret status", status);
     tlm.addData("Turret encoder reading #", encoderTracker.getNumReadings());
     tlm.addData("Turret motor overcurrent", motor.isOverCurrent());
+    tlm.addData("Turret sensor", breakBeam.getState());
   }
 
   /** Reads and updates the current position of the turret (not normalized) */
   private void updateCurrentPosition() {
+    // todo fix position issues (maybe not here? IDK)
     int currentPosTicks = motor.getCurrentPosition();
     currentPositionDegrees = ticksToAngleUnits(currentPosTicks, TICKS_PER_REV, AngleUnit.DEGREES);
     encoderTracker.addReading(currentPosTicks);

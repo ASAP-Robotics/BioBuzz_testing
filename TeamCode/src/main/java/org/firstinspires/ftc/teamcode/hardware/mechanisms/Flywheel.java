@@ -1,9 +1,7 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
-import static org.firstinspires.ftc.teamcode.utils.MathUtils.angleUnitsPerSecondToRpm;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.areEqual;
-import static org.firstinspires.ftc.teamcode.utils.MathUtils.rpmToAngleUnitsPerSecond;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.rpmToTicksPerSecond;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.ticksPerSecondToRpm;
 
@@ -12,7 +10,6 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
@@ -48,7 +45,7 @@ public class Flywheel implements System, MonitoredSystem {
   public static double MAX_OPERATIONAL_MOTOR_CURRENT = 10.0;
 
   /** Flywheel PIDF tuning constants */
-  public static double KP = 0.0, KI = 0.0, KD = 0.0, KF = 0.0;
+  public static double KP = 50.0, KI = 5.0, KD = 1.0, KF = 27.0; // well tuned enough
 
   /** The length of time to take averages over */
   public static long AVERAGE_WINDOW_SPAN = 500;

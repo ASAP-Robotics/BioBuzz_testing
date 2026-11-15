@@ -1,3 +1,5 @@
+/** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
+
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
 import static org.firstinspires.ftc.teamcode.constants.Tolerances.MOTOR_CURRENT_TOLERANCE_A;

@@ -118,6 +118,16 @@ public class Axon implements MonitoredSystem, System {
     this.name = servoName + " (Axon" + AXON_COUNT + ")";
   }
 
+  public Axon(Type type, HardwareMap hardwareMap, String servoName) {
+    this(
+        type,
+        hardwareMap.get(Servo.class, servoName),
+        null,
+        5,
+        true);
+    this.name = servoName + " (Axon" + AXON_COUNT + ")";
+  }
+
   /**
    * Creates a dummy (no encoder) Axon with default parameters
    *
@@ -193,7 +203,7 @@ public class Axon implements MonitoredSystem, System {
 
   @Override
   public void stop() {
-    update();
+    servo.getController().pwmDisable();
   }
 
   @Override
