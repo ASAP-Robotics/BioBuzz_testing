@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.AimingCalculator;
 import org.firstinspires.ftc.teamcode.utils.LookupTable;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 
-// todo WIP
+// todo add ejecting of just intake, not transfer
 
 /**
  * Class to control intake, transfer, turret, flywheel, etc. (scoring-related subsystems)
