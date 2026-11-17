@@ -8,7 +8,7 @@ import org.firstinspires.ftc.teamcode.types.AllianceColor;
 import org.firstinspires.ftc.teamcode.types.OpModeType;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 
-@TeleOp(name = "TeleOp Red", group = "Comp")
+@TeleOp(name = "🟥 TeleOp Red", group = "Comp")
 public class TeleOpRed extends OpMode {
   private TeleOpProgram program;
 

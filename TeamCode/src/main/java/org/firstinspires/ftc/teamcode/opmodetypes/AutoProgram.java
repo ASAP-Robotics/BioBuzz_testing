@@ -2,29 +2,31 @@
 
 package org.firstinspires.ftc.teamcode.opmodetypes;
 
-import com.pedropathing.follower.Follower;
+import com.pedropathing.ivy.Scheduler;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
 import org.firstinspires.ftc.robotcore.external.Telemetry;
-import org.firstinspires.ftc.teamcode.commands.LoopProgram;
+import org.firstinspires.ftc.teamcode.paths.AutoPathsRed;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
+import org.firstinspires.ftc.teamcode.utils.RobotPose;
 
 public class AutoProgram extends CommonProgram {
+  private final Command pathing;
 
-  private final Follower follower;
-
-  public AutoProgram(HardwareMap hwMap, Telemetry telemetry) {
+  public AutoProgram(HardwareMap hwMap, Telemetry telemetry, Pose start, Command pathing) {
     super(hwMap, telemetry);
-    this.follower = Constants.create(hwMap);
+    this.pathing = pathing;
+    AutoPathsRed.setFollower(Constants.create(hwMap));
+    RobotPose.robotPose = start;
   }
-
-  // todo
-
 
   @Override
   public void init() {
     super.init();
+
+    Scheduler.reset();
   }
 
   @Override
@@ -36,14 +38,13 @@ public class AutoProgram extends CommonProgram {
   public void start() {
     super.start();
 
-    Command testLooper = new LoopProgram(this);
-
-    // todo add commands, etc., and looping command
+    Scheduler.schedule(pathing);
   }
 
   @Override
   public void loop() {
-    // never used directly; start() never exits
+    Scheduler.execute();
+
     super.loop();
   }
 

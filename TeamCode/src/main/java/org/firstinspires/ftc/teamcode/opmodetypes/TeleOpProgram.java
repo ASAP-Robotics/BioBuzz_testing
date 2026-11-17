@@ -53,9 +53,9 @@ public class TeleOpProgram extends CommonProgram {
       robot.scoringSystem.ejectIntake();
     }
 
-    double forward = -gamepad1.left_stick_y;
-    double lateral = gamepad1.left_stick_x;
-    double turn = gamepad1.right_stick_x;
+    double forward = -gamepad1.right_stick_y;
+    double lateral = -gamepad1.right_stick_x;
+    double turn = -gamepad1.left_stick_x;
 
     robot.follower.manual(forward, lateral, turn); // set driving values
   }

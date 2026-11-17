@@ -39,7 +39,7 @@ public class TurretTuner extends OpMode {
 
   @Override
   public void loop() {
-    turret.setPosition(POSITION, true);
+    turret.setPosition(POSITION, false);
 
     if (HOME) {
       turret.home();

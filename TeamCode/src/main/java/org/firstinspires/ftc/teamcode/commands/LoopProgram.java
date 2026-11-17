@@ -17,6 +17,7 @@ import java.util.Set;
 /**
  * Command to call the loop() method of a program
  */
+@Deprecated
 public class LoopProgram implements Command {
   private final CommonProgram program;
 

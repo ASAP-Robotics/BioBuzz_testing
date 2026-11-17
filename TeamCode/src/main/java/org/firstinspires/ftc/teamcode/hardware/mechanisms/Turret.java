@@ -41,7 +41,7 @@ public class Turret implements MonitoredSystem, System {
   // **Constant vals********************************************************************************
   private static final int MOTOR_GEAR_TEETH = 24;
 
-  private static final double TURRET_GEAR_TEETH = 65; // todo check, this doesn't seem right
+  private static final double TURRET_GEAR_TEETH = 83;
 
   private static final double MOTOR_TICKS_PER_REV = (1.0+(46.0/11.0)) * 28;
 
@@ -63,7 +63,7 @@ public class Turret implements MonitoredSystem, System {
   public static double HOMING_DEGREES_PER_SECOND = 30.0; // todo tune
 
   /** Roughly how close the turret can be to its target position and be "at target" */
-  public static double TOLERANCE_DEGREES = 1.0;
+  public static double TOLERANCE_DEGREES = 2.0;
 
   /** The center position of the turrets physical range of motion */
   public static double FLIP_POINT_DEGREES = 90.0;
@@ -255,6 +255,14 @@ public class Turret implements MonitoredSystem, System {
    */
   public boolean atTarget() {
     if (state == State.HOMING || state == State.DISABLED) return false;
+    return atTargetInternal();
+  }
+
+  /**
+   * Gets if the turret is at its target position, regardless of state
+   * @return true if at target, otherwise false
+   */
+  private boolean atTargetInternal() {
     return areEqual(currentPositionDegrees, targetPositionDegrees, TOLERANCE_DEGREES);
   }
 
@@ -296,6 +304,12 @@ public class Turret implements MonitoredSystem, System {
   private void resetEncoder() {
     motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    currentPositionDegrees = 0.0;
+    positionSimulation.setValue(currentPositionDegrees);
+    positionSimulation.setTarget(currentPositionDegrees);
+    targetFollower.setValue(currentPositionDegrees);
+    targetFollower.setTarget(currentPositionDegrees);
+    controller.reset();
   }
 
   /** Calculates and applies the correct motor power for the turret */
@@ -340,7 +354,7 @@ public class Turret implements MonitoredSystem, System {
           // intentional fallthrough
         } else { // beam remains unbroken, thus, we still don't know where we are
           // if turret has moved 180 degrees one way, reverse
-          if (targetFollower.isAtTarget() && atTarget()) {
+          if (targetFollower.isAtTarget() && atTargetInternal()) {
             targetPositionDegrees = targetPositionDegrees == 180.0 ? -180.0 : 180.0;
           }
           break;
