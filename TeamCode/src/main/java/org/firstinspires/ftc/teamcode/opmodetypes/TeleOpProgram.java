@@ -16,6 +16,9 @@ public class TeleOpProgram extends CommonProgram {
 
   public TeleOpProgram(HardwareMap hwMap, Telemetry telemetry, Gamepad gamepad1, Gamepad gamepad2) {
     super(hwMap, telemetry);
+    if (gamepad1 == null || gamepad2 == null) {
+      throw new IllegalArgumentException("Gamepads must not be null");
+    }
     this.gamepad1 = gamepad1;
     this.gamepad2 = gamepad2;
   }

@@ -45,7 +45,7 @@ public class Flywheel implements System, MonitoredSystem {
   public static double MAX_OPERATIONAL_MOTOR_CURRENT = 10.0;
 
   /** Flywheel PIDF tuning constants */
-  public static double KP = 50.0, KI = 5.0, KD = 1.0, KF = 27.0; // well tuned enough
+  public static double KP = 250.0, KI = 0.0, KD = 5.0, KF = 14.0; // well tuned enough
 
   /** The length of time to take averages over */
   public static long AVERAGE_WINDOW_SPAN = 500;

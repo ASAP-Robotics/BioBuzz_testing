@@ -25,7 +25,7 @@ public class AutoProgram extends CommonProgram {
     super(hwMap, telemetry);
     AutoPaths paths = new AutoPaths(robot);
     this.pathing = paths.getCloseAuto();
-    RobotPose.robotPose = paths.start;
+    RobotPose.robotPose = paths.getCloseAutoStart();
   }
 
   @Override

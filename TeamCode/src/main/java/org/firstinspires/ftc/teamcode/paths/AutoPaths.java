@@ -22,9 +22,7 @@ import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 public class AutoPaths {
   private final RobotHardware robot;
 
-  // ALL PATHS HERE ARE RED
-
-  public final Pose start;
+  private final Pose start;
   private final Pose shoot;
   private final Pose inFrontOfFlower;
   private final Pose shoot_flower_control_1;
@@ -35,7 +33,7 @@ public class AutoPaths {
 
   public AutoPaths(RobotHardware r) {
     if (r == null) {
-      throw new IllegalArgumentException();
+      throw new IllegalArgumentException("Robot hardware must not be null");
     }
 
     // rotate 180 degrees around center of field if Blue
@@ -43,6 +41,8 @@ public class AutoPaths {
         PoseFactory.degrees() : PoseFactory.degrees().rotateAround(70.75, 70.75, 180.0);
 
     this.robot = r;
+
+    // ALL PATH POINTS HERE ARE FOR RED; blue paths are created from them
     this.start = p.of(56, 9, 90);
     this.shoot = p.of(56, 30, 90);
     this.inFrontOfFlower = p.of(18, 47, 180);
@@ -82,6 +82,18 @@ public class AutoPaths {
     return Paths.curve(shoot, driveToParkControl1, park).constant(park);
   }
 
+  /**
+   * Gets the robot's starting position for the "close" Auto
+   * @return the starting point of the "close" auto
+   */
+  public Pose getCloseAutoStart() {
+    return start;
+  }
+
+  /**
+   * Gets a Command containing the pathing and controls for the "close" Auto
+   * @return the "Close" auto
+   */
   public Command getCloseAuto() {
     return sequential(
         follow(robot.follower, driveToShoot1()),

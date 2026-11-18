@@ -1,6 +1,8 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.utils;
 
+import static java.lang.Thread.sleep;
+
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
@@ -16,6 +18,9 @@ import org.jetbrains.annotations.TestOnly;
 public class LoopTimeTracker {
   /** If telemetry should be sent directly from this class */
   public static boolean TELEMETRY_ENABLE = false;
+
+  /** The minimum time of each loop, forced by dead waiting until the time is elapsed */
+  public static double MIN_LOOP_TIME_FORCED = 0.0;
 
   /** How often telemetry should be updated, in milliseconds */
   public static double TELEMETRY_UPDATE_INTERVAL = 1000;
@@ -50,6 +55,14 @@ public class LoopTimeTracker {
   /** Records a new loop, and if telemetry is enabled, updates telemetry */
   public void loop() {
     double lastLoopTime = loopTimer.milliseconds();
+
+    if (lastLoopTime < MIN_LOOP_TIME_FORCED) try {
+      sleep((long) (MIN_LOOP_TIME_FORCED - lastLoopTime)); // todo check this
+      lastLoopTime = loopTimer.milliseconds();
+    } catch (InterruptedException ignored) {
+
+    }
+
     loopTimer.reset();
     loopTimeAverage.addReading(lastLoopTime);
 
@@ -57,6 +70,14 @@ public class LoopTimeTracker {
       updateTelemetry();
       telemetryUpdateTimer.reset();
     }
+  }
+
+  /**
+   * Resets loop time tracking (e.g., when switching to loop from init loop)
+   */
+  public void reset() {
+    loopTimeAverage.clearAverage();
+    start();
   }
 
   /**
@@ -124,6 +145,7 @@ public class LoopTimeTracker {
 
   /** Updates the telemetry from this class */
   private void updateTelemetry() {
+    if (!TELEMETRY_ENABLE) return;
     tlm.addData("Loop Time Average (ms)", getAverageLoopTimeMs());
     tlm.addData("Loop Time Jitter (ms)", getLoopTimeJitterMs());
     tlm.addData("Loop Time 5% Highs (ms)", getLoopTime5PercentHighsMs());
