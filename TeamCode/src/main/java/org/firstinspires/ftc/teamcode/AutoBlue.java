@@ -1,10 +1,11 @@
+/** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
+
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 
 import org.firstinspires.ftc.teamcode.opmodetypes.AutoProgram;
-import org.firstinspires.ftc.teamcode.paths.AutoPathsRed;
 import org.firstinspires.ftc.teamcode.types.AllianceColor;
 import org.firstinspires.ftc.teamcode.types.OpModeType;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
@@ -19,7 +20,7 @@ public class AutoBlue extends OpMode {
     OpModeInfo.color = AllianceColor.BLUE;
     OpModeInfo.robotLoaded = true;
 
-    program = new AutoProgram(hardwareMap, telemetry, AutoPathsRed.start, AutoPathsRed.RED_CLOSE_AUTO); // TODO use / create blue
+    program = new AutoProgram(hardwareMap, telemetry);
     program.init();
   }
 

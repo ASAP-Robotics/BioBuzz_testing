@@ -16,10 +16,10 @@ import org.firstinspires.ftc.teamcode.types.SystemStatus;
 @Configurable
 public class Transfer extends SpinningThing {
   public enum State {
-    DISABLED(0.0, 0.0, 6, false),
-    INTAKING(1, 383, 6, true),
-    EJECTING(-0.7, -268, 4, true),
-    SHOOTING(1, 383, 6, false);
+    DISABLED(0.0, 0.0, 8, false),
+    INTAKING(1, 383, 8, true),
+    EJECTING(-0.7, -268, 6, true),
+    SHOOTING(1, 383, 8, false);
 
     State(double motorPower, double targetMinRpm, double targetMaxCurrent, boolean blockerDeployed) {
       this.motorPower = motorPower;
@@ -38,7 +38,7 @@ public class Transfer extends SpinningThing {
   public static boolean TELEMETRY_ENABLE = false;
 
   /** The amount of time to lift pollen for when intaking */
-  public static double LIFT_TIME_MS = 1500;
+  public static double LIFT_TIME_MS = 1000;
 
   /** The servo position when the blocker is retracted (degrees) */
   public static double BLOCKER_RETRACTED_POSITION = 47.0;
@@ -79,8 +79,8 @@ public class Transfer extends SpinningThing {
         state.blockerDeployed ? BLOCKER_DEPLOYED_POSITION : BLOCKER_RETRACTED_POSITION
     );
 
-    boolean disable = !topBlocker.atTarget() /* ||
-        (state == State.INTAKING && beamBrokenTimer.milliseconds() > LIFT_TIME_MS)*/;
+    boolean disable = !topBlocker.atTarget() ||
+        (state == State.INTAKING && beamBrokenTimer.milliseconds() > LIFT_TIME_MS);
     targetMotorPower = disable ? 0.0 : state.motorPower; // don't jam blocker
     currentAlertVal = state.targetMaxCurrent;
     speedAlertVal = disable ? 0.0 : state.targetMinRpm; // don't give false alerts

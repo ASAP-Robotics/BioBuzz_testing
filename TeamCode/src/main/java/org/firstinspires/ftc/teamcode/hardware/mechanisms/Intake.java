@@ -15,9 +15,9 @@ import org.firstinspires.ftc.teamcode.types.SystemStatus;
 @Configurable
 public class Intake extends SpinningThing {
   public enum State {
-    DISABLED(0, 0, 6),
-    INTAKING(1, 533, 6),
-    EJECTING(-0.7, -373, 4);
+    DISABLED(0, 0, 8),
+    INTAKING(1, 533, 8),
+    EJECTING(-0.7, -373, 6);
 
     State(double motorPower, double targetMinRpm, double targetMaxCurrent) {
       this.motorPower = motorPower;
