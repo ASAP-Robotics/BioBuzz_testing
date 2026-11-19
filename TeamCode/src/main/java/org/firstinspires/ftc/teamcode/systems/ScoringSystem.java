@@ -43,6 +43,11 @@ public class ScoringSystem implements System {
     CLOSE
   }
 
+  public enum AimingMode {
+    AUTOMATIC,
+    MANUAL
+  }
+
   /** If telemetry should be updated each loop */
   public static boolean TELEMETRY_ENABLE = false;
 
@@ -55,11 +60,13 @@ public class ScoringSystem implements System {
   /** How long to eject for, in milliseconds */
   public static double EJECTING_TIME_MS = 1000.0;
 
-  /** The position of the turret when not tracking the target */
+  /** The position of the turret when not tracking the target, or when manually aiming */
   public static double TURRET_REST_POSITION_DEGREES = 0.0; // todo tune
 
   /** The RPM of the flywheel when not ready to shoot or shooting */
   public static double FLYWHEEL_IDLE_RPM = 500.0; // todo tune
+
+  public static double FLYWHEEL_MANUAL_AIM_RPM = 3300.0; // todo tune
 
   private final Intake intake;
   private final Transfer transfer;
@@ -72,6 +79,7 @@ public class ScoringSystem implements System {
 
   private State state = State.INTAKING;
   private Basket basket = Basket.FAR;
+  private AimingMode aimingMode = AimingMode.AUTOMATIC;
 
   public ScoringSystem(HardwareMap hwMap,
                        String intakeMotorName,
@@ -159,6 +167,13 @@ public class ScoringSystem implements System {
   }
 
   /**
+   * Switches the aiming mode (manual -> auto, or auto -> manual)
+   */
+  public void switchAimingMode() {
+    aimingMode = aimingMode == AimingMode.AUTOMATIC ? AimingMode.MANUAL : AimingMode.AUTOMATIC;
+  }
+
+  /**
    * Ejects both the front intake and the transfer
    */
   public void eject() {
@@ -205,6 +220,14 @@ public class ScoringSystem implements System {
    */
   public State getState() {
     return state;
+  }
+
+  /**
+   * Gets the aiming mode of the scoring system
+   * @return the current aiming mode
+   */
+  public AimingMode getAimingMode() {
+    return aimingMode;
   }
 
   /**
@@ -279,6 +302,7 @@ public class ScoringSystem implements System {
     if (!TELEMETRY_ENABLE) return;
     tlm.addData("Scoring system state", state);
     tlm.addData("Scoring system basket", basket);
+    tlm.addData("Scoring system aiming mode", aimingMode);
   }
 
   /**
@@ -306,15 +330,20 @@ public class ScoringSystem implements System {
   }
 
   /**
-   * Handles aiming at the target
+   * Handles aiming at the target, either automatically or manually
    */
   private void aimAtTarget() {
-    turret.setPosition(
-        aimingCalculator.getHeading() - aimingCalculator.getPosition().heading(),
-        state != State.SHOOTING
-    );
-    LookupTable.Entry entry = lookupTable.getKeyInterpolate(aimingCalculator.getDistance());
-    flywheel.setTargetRpm(entry.value1);
+    if (aimingMode == AimingMode.AUTOMATIC) {
+      turret.setPosition(
+          aimingCalculator.getHeading() - aimingCalculator.getPosition().heading(),
+          state != State.SHOOTING
+      );
+      LookupTable.Entry entry = lookupTable.getKeyInterpolate(aimingCalculator.getDistance());
+      flywheel.setTargetRpm(entry.value1);
+    } else {
+      turret.setPosition(TURRET_REST_POSITION_DEGREES, true);
+      flywheel.setTargetRpm(FLYWHEEL_MANUAL_AIM_RPM);
+    }
   }
 
   /**

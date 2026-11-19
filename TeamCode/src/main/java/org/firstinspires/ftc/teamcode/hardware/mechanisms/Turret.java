@@ -39,6 +39,20 @@ public class Turret implements MonitoredSystem, System {
     HOMING
   }
 
+  /** Enum to keep track of the state while homing */
+  protected enum HomingState {
+    /** Turret is moving forwards from its position when homing was started */
+    FORWARD(180.0),
+    /** Turret is moving back past its position when homing was started */
+    BACK(-180.0);
+
+    public final double target;
+
+    HomingState(double target) {
+      this.target = target;
+    }
+  }
+
   // **Constant vals********************************************************************************
   private static final int MOTOR_GEAR_TEETH = 24;
 
@@ -72,7 +86,11 @@ public class Turret implements MonitoredSystem, System {
   /** The physical maximum position the turret can move to (0 = straight forward) */
   public static double MAX_POSITION_DEGREES = 200.0;
 
-  /** The value to offset target positions by, in degrees (if zero, 0 will be at break beam tab) */
+  /**
+   * The value to offset target positions by, in degrees (if zero, 0 will be at break beam tab).
+   * This is used to account for the physical offset of where the break beam sensor and tab are
+   * (the beam isn't broken when the turret is straight forward)
+   */
   public static double TARGET_OFFSET_DEGREES = -20.0;
 
   /** How large of a time window to monitor encoder value for change over, in milliseconds */
@@ -122,6 +140,9 @@ public class Turret implements MonitoredSystem, System {
 
   /** The current operational status of the turret */
   private SystemStatus status = SystemStatus.UNKNOWN;
+
+  /** The state of homing the turret. Only applies while actually homing */
+  private HomingState homingState = HomingState.FORWARD;
 
   /** The position the turret is currently moving to, in degrees (encoder space, not robot space) */
   private double targetPositionDegrees = 0.0;
@@ -213,7 +234,8 @@ public class Turret implements MonitoredSystem, System {
 
     degrees = normalizeAround(degrees, 0.0); // normalize to be in nice number space
 
-    // we assume that min is not less than -360, and max is not more than +360
+    // we assume that min is not less than -360, and max is not more than +360, so best value is
+    // not more than 360 degrees different from normalized input
     double[] possiblePositions = {degrees, degrees + 360.0, degrees - 360.0};
     double closestInBounds = Double.NaN; // for possible positions with flipping
     double closest = Double.NaN; // for impossible positions or no flipping
@@ -251,7 +273,8 @@ public class Turret implements MonitoredSystem, System {
   public void home() {
     state = State.HOMING;
     resetEncoder(); // reset motor encoder
-    targetPositionDegrees = 180.0; // start moving 180 degrees from current position
+    homingState = HomingState.FORWARD; // start by moving +180 degrees from current position
+    targetPositionDegrees = homingState.target;
     targetFollower.setTolerance(0.0);
     targetFollower.setSpeed(HOMING_DEGREES_PER_SECOND);
   }
@@ -386,9 +409,12 @@ public class Turret implements MonitoredSystem, System {
           targetPositionDegrees = 0.0;
           // intentional fallthrough
         } else { // beam remains unbroken, thus, we still don't know where we are
-          // if turret has moved 180 degrees one way, reverse
+          // if turret has moved fully one way, reverse
           if (targetFollower.isAtTarget() && atTargetInternal()) {
-            targetPositionDegrees = targetPositionDegrees == 180.0 ? -180.0 : 180.0;
+            homingState =
+                homingState == HomingState.FORWARD ?
+                    HomingState.BACK : HomingState.FORWARD;
+            targetPositionDegrees = homingState.target;
           }
           break;
         }
