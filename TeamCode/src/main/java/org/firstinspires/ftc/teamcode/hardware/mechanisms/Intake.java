@@ -45,7 +45,7 @@ public class Intake extends SpinningThing {
   public Intake(HardwareMap hwMap, String motorName) {
     super(hwMap, motorName);
     stateTime = new ElapsedTime();
-    }
+  }
 
   @Override
   public void init() {
@@ -115,7 +115,6 @@ public class Intake extends SpinningThing {
   public State getState() {
     return state;
   }
-
 
   /** Updates the intake's operational status */
   protected void updateStatus() {

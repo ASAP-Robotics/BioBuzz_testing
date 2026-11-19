@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
 import static org.firstinspires.ftc.teamcode.constants.Tolerances.MOTOR_CURRENT_TOLERANCE_A;
@@ -12,7 +11,6 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
@@ -38,15 +36,13 @@ public abstract class SpinningThing implements System, MonitoredSystem {
   /** The maximum power to apply to the motor if it is overcurrent */
   public static double OVERCURRENT_MAX_MOTOR_POWER = 0.75;
 
-
-
   /** The angle unit to be used for motor operations */
   protected static final AngleUnit ANGLE_UNIT = AngleUnit.DEGREES;
 
   /** The motor driving the spinning thing */
   protected final DcMotorEx motor;
 
-  /** An average of the speed of the spinning thing, to detect stalls and encoder disconnects*/
+  /** An average of the speed of the spinning thing, to detect stalls and encoder disconnects */
   protected final TimeWindowAverage rpmAverage;
 
   /** Telemetry to send data to */
@@ -97,9 +93,7 @@ public abstract class SpinningThing implements System, MonitoredSystem {
   }
 
   @Override
-  public void initLoop() {
-
-  }
+  public void initLoop() {}
 
   @Override
   public void start() {
@@ -127,17 +121,13 @@ public abstract class SpinningThing implements System, MonitoredSystem {
     return new SystemReport(status);
   }
 
-  /**
-   * Updates tuning values so changes are applied
-   */
+  /** Updates tuning values so changes are applied */
   protected void updateTuningVals() {
     rpmAverage.setMinReadings(AVERAGE_MIN_READINGS);
     rpmAverage.setWindowSpan(AVERAGE_WINDOW_SPAN);
   }
 
-  /**
-   * Calculates the correct power to set the motor to, and sets it
-   */
+  /** Calculates the correct power to set the motor to, and sets it */
   private void updateMotorPower() {
     double maxMotorPower = overcurrent ? OVERCURRENT_MAX_MOTOR_POWER : Double.POSITIVE_INFINITY;
     double motorPower = MathUtils.clamp(targetMotorPower, -maxMotorPower, maxMotorPower);
@@ -146,38 +136,28 @@ public abstract class SpinningThing implements System, MonitoredSystem {
     }
   }
 
-  /**
-   * Updates the current operational status of the system
-   */
+  /** Updates the current operational status of the system */
   protected abstract void updateStatus();
 
-  /**
-   * Sends telemetry
-   */
+  /** Sends telemetry */
   protected abstract void updateTelemetry();
 
-  /**
-   * Reads and handles the motor's velocity
-   */
+  /** Reads and handles the motor's velocity */
   private void updateMotorVelocity() {
     rpmAverage.addReading(angleUnitsPerSecondToRpm(ANGLE_UNIT, motor.getVelocity(ANGLE_UNIT)));
   }
 
-  /**
-   * Updates the motor's overcurrent and underspeed status, and the encoder's connection status
-   */
+  /** Updates the motor's overcurrent and underspeed status, and the encoder's connection status */
   private void updateMotorStatus() {
     double avgRpm = rpmAverage.getAverage().average;
     underspeed = speedAlertVal >= 0 ? avgRpm < speedAlertVal : avgRpm > speedAlertVal;
     overcurrent = motor.isOverCurrent();
     encoderDisconnected =
-        rpmAverage.getMaxMinReadingDifference() == 0.0 &&
-            rpmAverage.getNumReadings() >= AVERAGE_MIN_READINGS;
+        rpmAverage.getMaxMinReadingDifference() == 0.0
+            && rpmAverage.getNumReadings() >= AVERAGE_MIN_READINGS;
   }
 
-  /**
-   * Updates the motor's current alert level
-   */
+  /** Updates the motor's current alert level */
   private void updateMotorCurrentAlerts() {
     if (!MathUtils.areEqual(oldMotorCurrentAlert, currentAlertVal, MOTOR_CURRENT_TOLERANCE_A)) {
       motor.setCurrentAlert(currentAlertVal, CurrentUnit.AMPS);

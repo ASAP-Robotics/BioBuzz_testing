@@ -1,12 +1,10 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.opmodetypes;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.configurations.RobotHardware;
 import org.firstinspires.ftc.teamcode.interfaces.System;
@@ -76,9 +74,7 @@ public abstract class CommonProgram implements System {
     updateTelemetry();
   }
 
-  /**
-   * Updates telemetry
-   */
+  /** Updates telemetry */
   protected void updateTelemetry() {
     telemetry.update();
     panelsTelemetry.update();

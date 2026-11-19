@@ -4,9 +4,7 @@ package org.firstinspires.ftc.teamcode.utils;
 import com.pedropathing.math.Pose;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 
-/**
- * Class to calculate aiming info from the position of the robot and a position to aim at
- */
+/** Class to calculate aiming info from the position of the robot and a position to aim at */
 public class AimingCalculator {
   private Pose target = new Pose(0.0, 0.0);
   private Pose position = new Pose(0.0, 0.0, 0.0);

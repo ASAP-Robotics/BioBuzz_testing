@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -7,7 +6,6 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Flywheel;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Transfer;
@@ -43,7 +41,8 @@ public class HardwareTuner extends OpMode {
     this.turret = new Turret(hardwareMap, "Turret", "TurretSensor");
     this.flywheel = new Flywheel(hardwareMap, "Flywheel");
     this.intake = new Intake(hardwareMap, "Intake");
-    this.transfer = new Transfer(hardwareMap, "Transfer", "TransferSensor", "Blocker", "BlockerEncoder");
+    this.transfer =
+        new Transfer(hardwareMap, "Transfer", "TransferSensor", "Blocker", "BlockerEncoder");
     this.loopTimeTracker = new LoopTimeTracker();
     this.tlm = PanelsTelemetry.INSTANCE.getTelemetry();
 

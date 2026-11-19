@@ -25,17 +25,10 @@ public class RobotHardware implements System {
             "BlockerEncoder",
             "Flywheel",
             "Turret",
-            "TurretSensor"
-        );
+            "TurretSensor");
 
     this.flowerRamp =
-        new FlowerRamp(
-            hwMap,
-            "RampRight",
-            "RampRightEncoder",
-            "RampLeft",
-            "RampLeftEncoder"
-        );
+        new FlowerRamp(hwMap, "RampRight", "RampRightEncoder", "RampLeft", "RampLeftEncoder");
 
     this.follower = Constants.create(hwMap);
   }

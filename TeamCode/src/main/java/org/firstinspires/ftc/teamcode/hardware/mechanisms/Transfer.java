@@ -1,18 +1,14 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.hardware.sensors.BreakBeam;
 import org.firstinspires.ftc.teamcode.hardware.servos.Axon;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
 
-/**
- * Class to control the transfer between the front intake and the turret.
- */
+/** Class to control the transfer between the front intake and the turret. */
 @Configurable
 public class Transfer extends SpinningThing {
   public enum State {
@@ -21,7 +17,8 @@ public class Transfer extends SpinningThing {
     EJECTING(-0.7, -268, 6, true),
     SHOOTING(1, 383, 8, false);
 
-    State(double motorPower, double targetMinRpm, double targetMaxCurrent, boolean blockerDeployed) {
+    State(
+        double motorPower, double targetMinRpm, double targetMaxCurrent, boolean blockerDeployed) {
       this.motorPower = motorPower;
       this.targetMinRpm = targetMinRpm;
       this.targetMaxCurrent = targetMaxCurrent;
@@ -58,11 +55,12 @@ public class Transfer extends SpinningThing {
   /** The operating state of the transfer */
   private State state = State.INTAKING;
 
-  public Transfer(HardwareMap hwMap,
-                  String motorName,
-                  String sensorName,
-                  String servoName,
-                  String servoEncoderName) {
+  public Transfer(
+      HardwareMap hwMap,
+      String motorName,
+      String sensorName,
+      String servoName,
+      String servoEncoderName) {
     super(hwMap, motorName);
     this.sensor = new BreakBeam(hwMap, sensorName);
     this.topBlocker = new Axon(Axon.Type.MAX, hwMap, servoName, servoEncoderName);
@@ -76,11 +74,11 @@ public class Transfer extends SpinningThing {
     }
 
     topBlocker.setPosition(
-        state.blockerDeployed ? BLOCKER_DEPLOYED_POSITION : BLOCKER_RETRACTED_POSITION
-    );
+        state.blockerDeployed ? BLOCKER_DEPLOYED_POSITION : BLOCKER_RETRACTED_POSITION);
 
-    boolean disable = !topBlocker.atTarget() ||
-        (state == State.INTAKING && beamBrokenTimer.milliseconds() > LIFT_TIME_MS);
+    boolean disable =
+        !topBlocker.atTarget()
+            || (state == State.INTAKING && beamBrokenTimer.milliseconds() > LIFT_TIME_MS);
     targetMotorPower = disable ? 0.0 : state.motorPower; // don't jam blocker
     currentAlertVal = state.targetMaxCurrent;
     speedAlertVal = disable ? 0.0 : state.targetMinRpm; // don't give false alerts

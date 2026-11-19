@@ -58,7 +58,7 @@ public class Turret implements MonitoredSystem, System {
 
   private static final double TURRET_GEAR_TEETH = 83;
 
-  private static final double MOTOR_TICKS_PER_REV = (1.0+(46.0/11.0)) * 28;
+  private static final double MOTOR_TICKS_PER_REV = (1.0 + (46.0 / 11.0)) * 28;
 
   /** How many encoder ticks are in one full rotation of the turret (not the motor) */
   private static final double TICKS_PER_REV =
@@ -88,8 +88,8 @@ public class Turret implements MonitoredSystem, System {
 
   /**
    * The value to offset target positions by, in degrees (if zero, 0 will be at break beam tab).
-   * This is used to account for the physical offset of where the break beam sensor and tab are
-   * (the beam isn't broken when the turret is straight forward)
+   * This is used to account for the physical offset of where the break beam sensor and tab are (the
+   * beam isn't broken when the turret is straight forward)
    */
   public static double TARGET_OFFSET_DEGREES = -20.0;
 
@@ -283,7 +283,7 @@ public class Turret implements MonitoredSystem, System {
    * Enables turret motion
    *
    * @apiNote This method is exposed in case it is useful, but is called automatically, so most of
-   * the time it isn't necessary to call it
+   *     the time it isn't necessary to call it
    */
   public void enable() {
     motor.setMotorEnable();
@@ -297,9 +297,7 @@ public class Turret implements MonitoredSystem, System {
     state = State.NORMAL;
   }
 
-  /**
-   * Disables turret motion
-   */
+  /** Disables turret motion */
   public void disable() {
     motor.setMotorDisable();
     state = State.DISABLED;
@@ -317,6 +315,7 @@ public class Turret implements MonitoredSystem, System {
 
   /**
    * Gets if the turret is at its target position, regardless of state
+   *
    * @return true if at target, otherwise false
    */
   private boolean atTargetInternal() {
@@ -412,8 +411,7 @@ public class Turret implements MonitoredSystem, System {
           // if turret has moved fully one way, reverse
           if (targetFollower.isAtTarget() && atTargetInternal()) {
             homingState =
-                homingState == HomingState.FORWARD ?
-                    HomingState.BACK : HomingState.FORWARD;
+                homingState == HomingState.FORWARD ? HomingState.BACK : HomingState.FORWARD;
             targetPositionDegrees = homingState.target;
           }
           break;

@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.paths;
 
 import static com.pedropathing.ivy.groups.Groups.parallel;
@@ -11,7 +10,6 @@ import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
-
 import org.firstinspires.ftc.teamcode.commands.SetFlowerRamp;
 import org.firstinspires.ftc.teamcode.commands.Shoot;
 import org.firstinspires.ftc.teamcode.configurations.RobotHardware;
@@ -37,8 +35,10 @@ public class AutoPaths {
     }
 
     // rotate 180 degrees around center of field if Blue
-    PoseFactory p = OpModeInfo.color == AllianceColor.RED ?
-        PoseFactory.degrees() : PoseFactory.degrees().rotateAround(70.75, 70.75, 180.0);
+    PoseFactory p =
+        OpModeInfo.color == AllianceColor.RED
+            ? PoseFactory.degrees()
+            : PoseFactory.degrees().rotateAround(70.75, 70.75, 180.0);
 
     this.robot = r;
 
@@ -71,11 +71,17 @@ public class AutoPaths {
 
   protected Path driveToEmptyFlower() {
 
-    return Paths.path(Paths.curve(shoot, shoot_flower_control_1, shoot_flower_control_2, inFrontOfFlower).linear(shoot, inFrontOfFlower), Paths.line(inFrontOfFlower, intakeFromFlower).constant(intakeFromFlower));
+    return Paths.path(
+        Paths.curve(shoot, shoot_flower_control_1, shoot_flower_control_2, inFrontOfFlower)
+            .linear(shoot, inFrontOfFlower),
+        Paths.line(inFrontOfFlower, intakeFromFlower).constant(intakeFromFlower));
   }
 
   protected Path driveToShoot2() {
-    return Paths.path(Paths.line(intakeFromFlower, inFrontOfFlower).constant(inFrontOfFlower), Paths.curve(inFrontOfFlower, shoot_flower_control_2, shoot_flower_control_1, shoot).linear(inFrontOfFlower, shoot));
+    return Paths.path(
+        Paths.line(intakeFromFlower, inFrontOfFlower).constant(inFrontOfFlower),
+        Paths.curve(inFrontOfFlower, shoot_flower_control_2, shoot_flower_control_1, shoot)
+            .linear(inFrontOfFlower, shoot));
   }
 
   protected Path driveToPark() {
@@ -84,6 +90,7 @@ public class AutoPaths {
 
   /**
    * Gets the robot's starting position for the "close" Auto
+   *
    * @return the starting point of the "close" auto
    */
   public Pose getCloseAutoStart() {
@@ -92,22 +99,16 @@ public class AutoPaths {
 
   /**
    * Gets a Command containing the pathing and controls for the "close" Auto
+   *
    * @return the "Close" auto
    */
   public Command getCloseAuto() {
     return sequential(
         follow(robot.follower, driveToShoot1()),
-        parallel(
-            shoot(),
-            dropRamp()
-        ),
+        parallel(shoot(), dropRamp()),
         follow(robot.follower, driveToEmptyFlower()),
         follow(robot.follower, driveToShoot2()),
-        parallel(
-            shoot(),
-            raiseRamp()
-        ),
-        follow(robot.follower, driveToPark())
-    );
+        parallel(shoot(), raiseRamp()),
+        follow(robot.follower, driveToPark()));
   }
 }

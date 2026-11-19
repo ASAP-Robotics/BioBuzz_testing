@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.commands;
 
 import com.pedropathing.ivy.Command;
@@ -7,16 +6,11 @@ import com.pedropathing.ivy.behaviors.BlockedBehavior;
 import com.pedropathing.ivy.behaviors.ConflictBehavior;
 import com.pedropathing.ivy.behaviors.EndCondition;
 import com.pedropathing.ivy.behaviors.InterruptedBehavior;
-
-import org.firstinspires.ftc.teamcode.configurations.RobotHardware;
-import org.firstinspires.ftc.teamcode.systems.ScoringSystem;
-
 import java.util.Collections;
 import java.util.Set;
+import org.firstinspires.ftc.teamcode.configurations.RobotHardware;
 
-/**
- * Command to mark the robot's intake as full
- */
+/** Command to mark the robot's intake as full */
 public class SetFull implements Command {
   private final RobotHardware robot;
 
@@ -60,12 +54,8 @@ public class SetFull implements Command {
   }
 
   @Override
-  public void execute() {
-
-  }
+  public void execute() {}
 
   @Override
-  public void end(EndCondition endCondition) {
-
-  }
+  public void end(EndCondition endCondition) {}
 }

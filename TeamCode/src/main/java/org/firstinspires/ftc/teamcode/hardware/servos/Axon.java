@@ -119,12 +119,7 @@ public class Axon implements MonitoredSystem, System {
   }
 
   public Axon(Type type, HardwareMap hardwareMap, String servoName) {
-    this(
-        type,
-        hardwareMap.get(Servo.class, servoName),
-        null,
-        5,
-        true);
+    this(type, hardwareMap.get(Servo.class, servoName), null, 5, true);
     this.name = servoName + " (Axon" + AXON_COUNT + ")";
   }
 
@@ -352,9 +347,7 @@ public class Axon implements MonitoredSystem, System {
     return targetFollower.getSpeed();
   }
 
-  /**
-   * Sets the target position to the current position, for when movement is first enabled
-   */
+  /** Sets the target position to the current position, for when movement is first enabled */
   private void begin() {
     if (!dummy) {
       double posDeg = readPositionDegrees();

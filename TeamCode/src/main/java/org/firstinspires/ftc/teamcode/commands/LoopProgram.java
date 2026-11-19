@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.commands;
 
 import com.pedropathing.ivy.Command;
@@ -7,16 +6,11 @@ import com.pedropathing.ivy.behaviors.BlockedBehavior;
 import com.pedropathing.ivy.behaviors.ConflictBehavior;
 import com.pedropathing.ivy.behaviors.EndCondition;
 import com.pedropathing.ivy.behaviors.InterruptedBehavior;
-
-import org.firstinspires.ftc.teamcode.configurations.RobotHardware;
-import org.firstinspires.ftc.teamcode.opmodetypes.CommonProgram;
-
 import java.util.Collections;
 import java.util.Set;
+import org.firstinspires.ftc.teamcode.opmodetypes.CommonProgram;
 
-/**
- * Command to call the loop() method of a program
- */
+/** Command to call the loop() method of a program */
 @Deprecated
 public class LoopProgram implements Command {
   private final CommonProgram program;
@@ -51,9 +45,7 @@ public class LoopProgram implements Command {
   }
 
   @Override
-  public void start() {
-
-  }
+  public void start() {}
 
   @Override
   public boolean done() {
@@ -66,7 +58,5 @@ public class LoopProgram implements Command {
   }
 
   @Override
-  public void end(EndCondition endCondition) {
-
-  }
+  public void end(EndCondition endCondition) {}
 }

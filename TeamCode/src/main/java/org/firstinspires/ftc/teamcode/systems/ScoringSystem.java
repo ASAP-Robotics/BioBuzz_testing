@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.systems;
 
 import com.bylazar.configurables.annotations.Configurable;
@@ -8,7 +7,6 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.teamcode.constants.BasketPositions;
 import org.firstinspires.ftc.teamcode.constants.LookupTableContents;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Flywheel;
@@ -23,9 +21,7 @@ import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 
 // todo add ejecting of just intake, not transfer
 
-/**
- * Class to control intake, transfer, turret, flywheel, etc. (scoring-related subsystems)
- */
+/** Class to control intake, transfer, turret, flywheel, etc. (scoring-related subsystems) */
 @Configurable
 public class ScoringSystem implements System {
   public enum State {
@@ -81,23 +77,24 @@ public class ScoringSystem implements System {
   private Basket basket = Basket.FAR;
   private AimingMode aimingMode = AimingMode.AUTOMATIC;
 
-  public ScoringSystem(HardwareMap hwMap,
-                       String intakeMotorName,
-                       String transferMotorName,
-                       String transferSensorName,
-                       String transferServoName,
-                       String transferServoEncoderName,
-                       String flywheelMotorName,
-                       String turretMotorName,
-                       String turretBreakBeamName) {
+  public ScoringSystem(
+      HardwareMap hwMap,
+      String intakeMotorName,
+      String transferMotorName,
+      String transferSensorName,
+      String transferServoName,
+      String transferServoEncoderName,
+      String flywheelMotorName,
+      String turretMotorName,
+      String turretBreakBeamName) {
     this.intake = new Intake(hwMap, intakeMotorName);
-    this.transfer = new Transfer(
-        hwMap,
-        transferMotorName,
-        transferSensorName,
-        transferServoName,
-        transferServoEncoderName
-    );
+    this.transfer =
+        new Transfer(
+            hwMap,
+            transferMotorName,
+            transferSensorName,
+            transferServoName,
+            transferServoEncoderName);
     this.flywheel = new Flywheel(hwMap, flywheelMotorName);
     this.turret = new Turret(hwMap, turretMotorName, turretBreakBeamName);
     this.stateTime = new ElapsedTime();
@@ -159,55 +156,41 @@ public class ScoringSystem implements System {
     aimingCalculator.setPosition(robotPosition);
   }
 
-  /**
-   * Switches from aiming at one basket to the other basket
-   */
+  /** Switches from aiming at one basket to the other basket */
   public void switchTarget() {
     setBasket(basket == Basket.FAR ? Basket.CLOSE : Basket.FAR);
   }
 
-  /**
-   * Switches the aiming mode (manual -> auto, or auto -> manual)
-   */
+  /** Switches the aiming mode (manual -> auto, or auto -> manual) */
   public void switchAimingMode() {
     aimingMode = aimingMode == AimingMode.AUTOMATIC ? AimingMode.MANUAL : AimingMode.AUTOMATIC;
   }
 
-  /**
-   * Ejects both the front intake and the transfer
-   */
+  /** Ejects both the front intake and the transfer */
   public void eject() {
     setState(State.EJECTING_ALL);
   }
 
-  /**
-   * Ejects just the intake, and disables the transfer
-   */
+  /** Ejects just the intake, and disables the transfer */
   public void ejectIntake() {
     setState(State.EJECTING_INTAKE);
   }
 
-  /**
-   * Sets the robot as "full"; disables the intake and preps for shooting
-   */
+  /** Sets the robot as "full"; disables the intake and preps for shooting */
   public void setFull() {
     if (state != State.INTAKING) return;
 
     setState(State.FULL);
   }
 
-  /**
-   * Shoots the robot's payload of pollen
-   */
+  /** Shoots the robot's payload of pollen */
   public void shoot() {
     if (state == State.SHOOTING) return; // don't cancel active shots
 
     setState(State.SHOT_QUEUED);
   }
 
-  /**
-   * Deploys the blocker in an attempt to force pollen out of the shooter
-   */
+  /** Deploys the blocker in an attempt to force pollen out of the shooter */
   public void shootBackup() {
     if (state != State.SHOOTING) return;
 
@@ -216,6 +199,7 @@ public class ScoringSystem implements System {
 
   /**
    * Gets the state of the scoring system
+   *
    * @return the current state
    */
   public State getState() {
@@ -224,15 +208,14 @@ public class ScoringSystem implements System {
 
   /**
    * Gets the aiming mode of the scoring system
+   *
    * @return the current aiming mode
    */
   public AimingMode getAimingMode() {
     return aimingMode;
   }
 
-  /**
-   * Updates logic to do with the current state
-   */
+  /** Updates logic to do with the current state */
   private void updateStateLogic() {
     switch (state) {
       case INTAKING:
@@ -295,9 +278,7 @@ public class ScoringSystem implements System {
     }
   }
 
-  /**
-   * Updates telemetry data from scoring system
-   */
+  /** Updates telemetry data from scoring system */
   private void updateTelemetry() {
     if (!TELEMETRY_ENABLE) return;
     tlm.addData("Scoring system state", state);
@@ -307,6 +288,7 @@ public class ScoringSystem implements System {
 
   /**
    * Sets the state of the scoring system and resets the state time timer if the state is new
+   *
    * @param state the (new) state of the scoring system
    */
   private void setState(State state) {
@@ -329,15 +311,12 @@ public class ScoringSystem implements System {
     return flywheel.isAtTargetRpm() && turret.atTarget();
   }
 
-  /**
-   * Handles aiming at the target, either automatically or manually
-   */
+  /** Handles aiming at the target, either automatically or manually */
   private void aimAtTarget() {
     if (aimingMode == AimingMode.AUTOMATIC) {
       turret.setPosition(
           aimingCalculator.getHeading() - aimingCalculator.getPosition().heading(),
-          state != State.SHOOTING
-      );
+          state != State.SHOOTING);
       LookupTable.Entry entry = lookupTable.getKeyInterpolate(aimingCalculator.getDistance());
       flywheel.setTargetRpm(entry.value1);
     } else {
@@ -346,9 +325,7 @@ public class ScoringSystem implements System {
     }
   }
 
-  /**
-   * Handles aiming at rest, when not aiming at the target
-   */
+  /** Handles aiming at rest, when not aiming at the target */
   private void aimRest() {
     turret.setPosition(TURRET_REST_POSITION_DEGREES, true);
     flywheel.setTargetRpm(FLYWHEEL_IDLE_RPM);

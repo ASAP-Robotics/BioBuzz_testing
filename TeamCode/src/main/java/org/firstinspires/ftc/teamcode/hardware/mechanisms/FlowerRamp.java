@@ -1,12 +1,10 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.teamcode.hardware.servos.Axon;
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
 import org.firstinspires.ftc.teamcode.interfaces.System;
@@ -28,11 +26,12 @@ public class FlowerRamp implements MonitoredSystem, System {
 
   private State state = State.STOWED;
 
-  public FlowerRamp(HardwareMap hwMap,
-                    String rightServoName,
-                    String rightEncoderName,
-                    String leftServoName,
-                    String leftEncoderName) {
+  public FlowerRamp(
+      HardwareMap hwMap,
+      String rightServoName,
+      String rightEncoderName,
+      String leftServoName,
+      String leftEncoderName) {
     this.right = new Axon(Axon.Type.MAX, hwMap, rightServoName, rightEncoderName);
     this.left = new Axon(Axon.Type.MAX, hwMap, leftServoName, leftEncoderName);
     this.tlm = PanelsTelemetry.INSTANCE.getTelemetry();
@@ -80,7 +79,7 @@ public class FlowerRamp implements MonitoredSystem, System {
   public SystemReport getStatus() {
     SystemReport rightReport = right.getStatus();
     SystemReport leftReport = left.getStatus();
-    return rightReport.status.severity > leftReport.status.severity ? rightReport: leftReport;
+    return rightReport.status.severity > leftReport.status.severity ? rightReport : leftReport;
   }
 
   /**
@@ -111,9 +110,7 @@ public class FlowerRamp implements MonitoredSystem, System {
     return state;
   }
 
-  /**
-   * Handles state-specific behavior
-   */
+  /** Handles state-specific behavior */
   private void updateStateBehavior() {
     switch (state) {
       case STOWED:

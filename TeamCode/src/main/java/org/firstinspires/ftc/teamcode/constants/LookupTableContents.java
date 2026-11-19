@@ -5,9 +5,7 @@ import org.firstinspires.ftc.teamcode.utils.LookupTable;
 public class LookupTableContents {
   // todo tune
 
-  /**
-   * The aiming lookup table. Key is distance in inches, value1 is RPM, value2 is angle value
-   */
+  /** The aiming lookup table. Key is distance in inches, value1 is RPM, value2 is angle value */
   public static final LookupTable.Entry[] TABLE_CONTENTS = {
     new LookupTable.Entry(0.0, 0.0, 0.0),
     new LookupTable.Entry(1.0, 1.0, 1.0),

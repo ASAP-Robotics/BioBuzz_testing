@@ -56,12 +56,13 @@ public class LoopTimeTracker {
   public void loop() {
     double lastLoopTime = loopTimer.milliseconds();
 
-    if (lastLoopTime < MIN_LOOP_TIME_FORCED) try {
-      sleep((long) (MIN_LOOP_TIME_FORCED - lastLoopTime)); // todo check this
-      lastLoopTime = loopTimer.milliseconds();
-    } catch (InterruptedException ignored) {
+    if (lastLoopTime < MIN_LOOP_TIME_FORCED)
+      try {
+        sleep((long) (MIN_LOOP_TIME_FORCED - lastLoopTime)); // todo check this
+        lastLoopTime = loopTimer.milliseconds();
+      } catch (InterruptedException ignored) {
 
-    }
+      }
 
     loopTimer.reset();
     loopTimeAverage.addReading(lastLoopTime);
@@ -72,9 +73,7 @@ public class LoopTimeTracker {
     }
   }
 
-  /**
-   * Resets loop time tracking (e.g., when switching to loop from init loop)
-   */
+  /** Resets loop time tracking (e.g., when switching to loop from init loop) */
   public void reset() {
     loopTimeAverage.clearAverage();
     start();

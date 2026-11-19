@@ -1,5 +1,4 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.commands;
 
 import com.pedropathing.ivy.Command;
@@ -7,14 +6,10 @@ import com.pedropathing.ivy.behaviors.BlockedBehavior;
 import com.pedropathing.ivy.behaviors.ConflictBehavior;
 import com.pedropathing.ivy.behaviors.EndCondition;
 import com.pedropathing.ivy.behaviors.InterruptedBehavior;
-
+import java.util.Set;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.FlowerRamp;
 
-import java.util.Set;
-
-/**
- * Command to set the state of the flower intake ramp
- */
+/** Command to set the state of the flower intake ramp */
 public class SetFlowerRamp implements Command {
   private final FlowerRamp ramp;
   private final FlowerRamp.State state;
@@ -60,12 +55,8 @@ public class SetFlowerRamp implements Command {
   }
 
   @Override
-  public void execute() {
-
-  }
+  public void execute() {}
 
   @Override
-  public void end(EndCondition endCondition) {
-
-  }
+  public void end(EndCondition endCondition) {}
 }

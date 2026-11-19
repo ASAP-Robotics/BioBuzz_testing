@@ -1,16 +1,12 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
-
 package org.firstinspires.ftc.teamcode.opmodetypes;
 
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.FlowerRamp;
 
-/**
- * Class to contain TeleOp program behavior
- */
+/** Class to contain TeleOp program behavior */
 public class TeleOpProgram extends CommonProgram {
   private final Gamepad gamepad1, gamepad2;
 
@@ -30,9 +26,7 @@ public class TeleOpProgram extends CommonProgram {
     super.loop();
   }
 
-  /**
-   * Handles driver controls
-   */
+  /** Handles driver controls */
   private void updateDriverControls() {
     if (gamepad1.leftBumperWasPressed()) { // set full
       robot.scoringSystem.setFull();
@@ -48,9 +42,9 @@ public class TeleOpProgram extends CommonProgram {
     }
     if (gamepad1.xWasPressed()) { // toggle flower ramp
       robot.flowerRamp.setState(
-          robot.flowerRamp.getState() == FlowerRamp.State.STOWED ?
-              FlowerRamp.State.DEPLOYED : FlowerRamp.State.STOWED
-      );
+          robot.flowerRamp.getState() == FlowerRamp.State.STOWED
+              ? FlowerRamp.State.DEPLOYED
+              : FlowerRamp.State.STOWED);
     }
     if (gamepad1.yWasPressed()) { // eject intake
       robot.scoringSystem.ejectIntake();
