@@ -11,8 +11,22 @@ import com.qualcomm.robotcore.hardware.HardwareMap;
  */
 public class BreakBeam {
   public enum State {
-    BROKEN,
-    UNBROKEN
+    BROKEN(true),
+    UNBROKEN(false);
+
+    public final boolean broken;
+
+    State(boolean broken) {
+      this.broken = broken;
+    }
+
+    public boolean isBroken() {
+      return broken;
+    }
+
+    public boolean isUnbroken() {
+      return !broken;
+    }
   }
 
   protected static final boolean BROKEN_BEAM_STATE = false; // the state when the beam is broken

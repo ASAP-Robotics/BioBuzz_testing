@@ -175,4 +175,26 @@ public class MathUtils {
 
     return unit.fromDegrees(ticks / ticksPerRev * 360.0);
   }
+
+  /**
+   * Converts a speed of ticks per second to revolutions per minute
+   *
+   * @param ticksPerSecond the speed to convert, in ticks per second
+   * @param ticksPerRev the number of ticks in one revolution
+   * @return the speed, in revolutions per minute
+   */
+  public static double ticksPerSecondToRpm(double ticksPerSecond, double ticksPerRev) {
+    return ticksPerSecond / ticksPerRev * 60.0;
+  }
+
+  /**
+   * Converts a speed of revolutions per minute to ticks per second
+   *
+   * @param rpm the speed to convert, in revolutions per minute
+   * @param ticksPerRev the number of ticks in one revolution
+   * @return the speed, in ticks per second
+   */
+  public static double rpmToTicksPerSecond(double rpm, double ticksPerRev) {
+    return rpm * ticksPerRev / 60.0;
+  }
 }

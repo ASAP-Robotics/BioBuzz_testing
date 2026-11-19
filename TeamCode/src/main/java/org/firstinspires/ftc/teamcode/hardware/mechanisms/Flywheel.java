@@ -1,9 +1,9 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.hardware.mechanisms;
 
-import static org.firstinspires.ftc.teamcode.utils.MathUtils.angleUnitsPerSecondToRpm;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.areEqual;
-import static org.firstinspires.ftc.teamcode.utils.MathUtils.rpmToAngleUnitsPerSecond;
+import static org.firstinspires.ftc.teamcode.utils.MathUtils.rpmToTicksPerSecond;
+import static org.firstinspires.ftc.teamcode.utils.MathUtils.ticksPerSecondToRpm;
 
 import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
@@ -30,6 +30,8 @@ public class Flywheel implements System, MonitoredSystem {
   /** If flywheel telemetry and tunable values should be used and updated each loop */
   public static boolean TUNING = false;
 
+  public static double TICKS_PER_REV = 28.0;
+
   /** The speed that the RPM simulation moves at, in RPM per second */
   public static double RPM_SIM_UNITS_PER_SECOND = 100.0;
 
@@ -43,7 +45,7 @@ public class Flywheel implements System, MonitoredSystem {
   public static double MAX_OPERATIONAL_MOTOR_CURRENT = 10.0;
 
   /** Flywheel PIDF tuning constants */
-  public static double KP = 0.0, KI = 0.0, KD = 0.0, KF = 0.0;
+  public static double KP = 250.0, KI = 0.0, KD = 5.0, KF = 14.0; // well tuned enough
 
   /** The length of time to take averages over */
   public static long AVERAGE_WINDOW_SPAN = 500;
@@ -92,7 +94,7 @@ public class Flywheel implements System, MonitoredSystem {
   public void init() {
     motor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
     motor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-    motor.setDirection(DcMotor.Direction.FORWARD);
+    motor.setDirection(DcMotor.Direction.REVERSE);
     motor.setVelocityPIDFCoefficients(KP, KI, KD, KF);
     motor.setVelocity(0, ANGLE_UNIT);
     motor.setCurrentAlert(MAX_OPERATIONAL_MOTOR_CURRENT, CurrentUnit.AMPS);
@@ -110,9 +112,9 @@ public class Flywheel implements System, MonitoredSystem {
 
   @Override
   public void loop() {
-    motor.setVelocity(rpmToAngleUnitsPerSecond(ANGLE_UNIT, targetRpm), ANGLE_UNIT);
+    motor.setVelocity(rpmToTicksPerSecond(targetRpm, TICKS_PER_REV));
     rpmSimulation.setTarget(targetRpm);
-    actualRpm = angleUnitsPerSecondToRpm(ANGLE_UNIT, motor.getVelocity(ANGLE_UNIT));
+    actualRpm = ticksPerSecondToRpm(motor.getVelocity(), TICKS_PER_REV);
     averageRpmError.addReading(Math.abs(targetRpm - actualRpm));
 
     updateConfigParameters();

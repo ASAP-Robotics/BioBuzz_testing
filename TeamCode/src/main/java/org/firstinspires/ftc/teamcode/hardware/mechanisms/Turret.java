@@ -19,9 +19,12 @@ import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.hardware.sensors.BreakBeam;
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
 import org.firstinspires.ftc.teamcode.interfaces.System;
+import org.firstinspires.ftc.teamcode.types.OpModeType;
 import org.firstinspires.ftc.teamcode.types.SystemReport;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
 import org.firstinspires.ftc.teamcode.utils.Follower;
+import org.firstinspires.ftc.teamcode.utils.MathUtils;
+import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 import org.firstinspires.ftc.teamcode.utils.TimeWindowAverage;
 
 @Configurable
@@ -36,13 +39,32 @@ public class Turret implements MonitoredSystem, System {
     HOMING
   }
 
-  // **Constant
-  // vals*********************************************************************************
-  /** How many encoder ticks are in one full rotation of the turret (not the motor) */
-  private static final double TICKS_PER_REV = 100.0; // todo use actual value
+  /** Enum to keep track of the state while homing */
+  protected enum HomingState {
+    /** Turret is moving forwards from its position when homing was started */
+    FORWARD(180.0),
+    /** Turret is moving back past its position when homing was started */
+    BACK(-180.0);
 
-  // **Tunable
-  // vals**********************************************************************************
+    public final double target;
+
+    HomingState(double target) {
+      this.target = target;
+    }
+  }
+
+  // **Constant vals********************************************************************************
+  private static final int MOTOR_GEAR_TEETH = 24;
+
+  private static final double TURRET_GEAR_TEETH = 83;
+
+  private static final double MOTOR_TICKS_PER_REV = (1.0 + (46.0 / 11.0)) * 28;
+
+  /** How many encoder ticks are in one full rotation of the turret (not the motor) */
+  private static final double TICKS_PER_REV =
+      MOTOR_TICKS_PER_REV * TURRET_GEAR_TEETH / MOTOR_GEAR_TEETH;
+
+  // **Tunable vals*********************************************************************************
   /** If telemetry from turret should be updated each loop */
   public static boolean TELEMETRY_ENABLE = false;
 
@@ -53,16 +75,23 @@ public class Turret implements MonitoredSystem, System {
   public static double NORMAL_DEGREES_PER_SECOND = Double.POSITIVE_INFINITY;
 
   /** The speed the turret will attempt to move at when homing */
-  public static double HOMING_DEGREES_PER_SECOND = 60.0; // todo tune
+  public static double HOMING_DEGREES_PER_SECOND = 30.0; // todo tune
 
   /** Roughly how close the turret can be to its target position and be "at target" */
-  public static double TOLERANCE_DEGREES = 1.0;
+  public static double TOLERANCE_DEGREES = 2.0;
 
-  /** The center position of the turrets physical range of motion */
-  public static double FLIP_POINT_DEGREES = 90.0;
+  /** The physical minimum position the turret can move to (0 = straight forward) */
+  public static double MIN_POSITION_DEGREES = -180.0;
 
-  /** The value to offset target positions by, in degrees (if zero, 0 will be at break beam tab) */
-  public static double TARGET_OFFSET_DEGREES = 0.0;
+  /** The physical maximum position the turret can move to (0 = straight forward) */
+  public static double MAX_POSITION_DEGREES = 200.0;
+
+  /**
+   * The value to offset target positions by, in degrees (if zero, 0 will be at break beam tab).
+   * This is used to account for the physical offset of where the break beam sensor and tab are (the
+   * beam isn't broken when the turret is straight forward)
+   */
+  public static double TARGET_OFFSET_DEGREES = -20.0;
 
   /** How large of a time window to monitor encoder value for change over, in milliseconds */
   public static double ENCODER_DISCONNECT_WINDOW = 1000;
@@ -77,10 +106,9 @@ public class Turret implements MonitoredSystem, System {
   public static double ENCODER_DISCONNECT_MAX_POWER = 0.2;
 
   /** Turret PID tuning constants */
-  public static double KP = 0.0, KI = 0.0, KD = 0.0; // todo tune
+  public static double KP = 0.03, KI = 0.001, KD = 0.0015; // tuned well enough for now
 
-  // **Final
-  // vars************************************************************************************
+  // **Final vars***********************************************************************************
   /** The motor driving the turret */
   private final DcMotorEx motor;
 
@@ -102,27 +130,30 @@ public class Turret implements MonitoredSystem, System {
   /** Telemetry to send debug / tuning info to */
   private final TelemetryManager tlm;
 
-  // **Static
-  // vars***********************************************************************************
+  // **Static vars**********************************************************************************
   /** Cached value of current alert threshold, to avoid unnecessary hardware writes */
   private static double oldMaxOperationalCurrent = 10.0;
 
-  // **Normal
-  // vars***********************************************************************************
+  // **Normal vars**********************************************************************************
   /** The current state of the turret */
   private State state = State.DISABLED;
 
   /** The current operational status of the turret */
   private SystemStatus status = SystemStatus.UNKNOWN;
 
-  /** The position the turret is currently moving to, in degrees */
+  /** The state of homing the turret. Only applies while actually homing */
+  private HomingState homingState = HomingState.FORWARD;
+
+  /** The position the turret is currently moving to, in degrees (encoder space, not robot space) */
   private double targetPositionDegrees = 0.0;
 
-  /** The position the PID controller of the turret is moving to, in degrees */
+  /** The position the PID controller of the turret is moving to, in degrees (encoder space) */
   private double subTargetPositionDegrees = 0.0;
 
-  /** The position the turret is currently at, in degrees */
+  /** The position the turret is currently at, in degrees (encoder space, not robot space) */
   private double currentPositionDegrees = 0.0;
+
+  // todo fix flip around
 
   public Turret(HardwareMap hwMap, String motorName, String breakBeamName) {
     this.motor = hwMap.get(DcMotorEx.class, motorName);
@@ -139,25 +170,25 @@ public class Turret implements MonitoredSystem, System {
   public void init() {
     motor.setMotorDisable();
     motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-    motor.setDirection(DcMotor.Direction.FORWARD);
+    motor.setDirection(DcMotor.Direction.FORWARD); // might need to reverse
+    // home on init for Auto OpModes
+    if (OpModeInfo.type == OpModeType.AUTO) {
+      enable();
+      home();
+    }
   }
 
   @Override
   public void initLoop() {
-    // todo add ability to home on init
+    // this is slightly unorthodox, but is the simplest way to make homing on init work
+    if (state != State.DISABLED) {
+      loop();
+    }
   }
 
   @Override
   public void start() {
-    motor.setMotorEnable();
-    updateCurrentPosition();
-    positionSimulation.setValue(currentPositionDegrees);
-    positionSimulation.setTarget(currentPositionDegrees);
-    targetFollower.setValue(currentPositionDegrees);
-    targetFollower.setTarget(currentPositionDegrees);
-    targetPositionDegrees = currentPositionDegrees;
-    controller.reset();
-    state = State.NORMAL;
+    if (state == State.DISABLED) enable();
   }
 
   @Override
@@ -176,8 +207,7 @@ public class Turret implements MonitoredSystem, System {
 
   @Override
   public void stop() {
-    motor.setMotorDisable();
-    state = State.DISABLED;
+    disable();
   }
 
   @Override
@@ -190,23 +220,87 @@ public class Turret implements MonitoredSystem, System {
    *
    * @param degrees the target position of the turret
    */
-  public void setPosition(double degrees) {
+  public void setPosition(double degrees, boolean allowFlipping) {
     if (Double.isNaN(degrees) || Double.isInfinite(degrees)) {
       throw new IllegalArgumentException("Degrees must be a finite number");
     }
+
     if (state == State.HOMING) return; // disallow setting position if homing
 
-    degrees += TARGET_OFFSET_DEGREES; // apply target offset
-    targetPositionDegrees = normalizeAround(degrees, FLIP_POINT_DEGREES); // constrain value
+    // todo test
+
+    // the current position of the turret relative to the robot (0 = forward)
+    double currentDegreesRobot = currentPositionDegrees - TARGET_OFFSET_DEGREES;
+
+    degrees = normalizeAround(degrees, 0.0); // normalize to be in nice number space
+
+    // we assume that min is not less than -360, and max is not more than +360, so best value is
+    // not more than 360 degrees different from normalized input
+    double[] possiblePositions = {degrees, degrees + 360.0, degrees - 360.0};
+    double closestInBounds = Double.NaN; // for possible positions with flipping
+    double closest = Double.NaN; // for impossible positions or no flipping
+    double bestDistInBounds = Double.POSITIVE_INFINITY;
+    double bestDist = Double.POSITIVE_INFINITY;
+
+    // find closest position within bounds
+    for (double i : possiblePositions) {
+      double dist = Math.abs(i - currentDegreesRobot);
+      if (dist < bestDist) { // could be out of bounds
+        closest = i;
+        bestDist = dist;
+      }
+
+      if (i >= MIN_POSITION_DEGREES && i <= MAX_POSITION_DEGREES) { // if in bounds
+        if (dist < bestDistInBounds) { // is in bounds
+          closestInBounds = i;
+          bestDistInBounds = dist;
+        }
+      }
+    }
+
+    if (Double.isNaN(closestInBounds) || !allowFlipping) { // target out of bounds, or no flipping
+      // if we can't flip around, or if the target is impossible, use closest and constrain
+      degrees = MathUtils.clamp(closest, MIN_POSITION_DEGREES, MAX_POSITION_DEGREES);
+
+    } else { // target position is reachable
+      degrees = closestInBounds;
+    }
+
+    targetPositionDegrees = degrees + TARGET_OFFSET_DEGREES; // apply target offset
   }
 
   /** Starts homing the turret, recalibrating its "zero position" */
   public void home() {
     state = State.HOMING;
     resetEncoder(); // reset motor encoder
-    targetPositionDegrees = 180.0; // start moving 180 degrees from current position
+    homingState = HomingState.FORWARD; // start by moving +180 degrees from current position
+    targetPositionDegrees = homingState.target;
     targetFollower.setTolerance(0.0);
     targetFollower.setSpeed(HOMING_DEGREES_PER_SECOND);
+  }
+
+  /**
+   * Enables turret motion
+   *
+   * @apiNote This method is exposed in case it is useful, but is called automatically, so most of
+   *     the time it isn't necessary to call it
+   */
+  public void enable() {
+    motor.setMotorEnable();
+    updateCurrentPosition();
+    positionSimulation.setValue(currentPositionDegrees);
+    positionSimulation.setTarget(currentPositionDegrees);
+    targetFollower.setValue(currentPositionDegrees);
+    targetFollower.setTarget(currentPositionDegrees);
+    targetPositionDegrees = currentPositionDegrees;
+    controller.reset();
+    state = State.NORMAL;
+  }
+
+  /** Disables turret motion */
+  public void disable() {
+    motor.setMotorDisable();
+    state = State.DISABLED;
   }
 
   /**
@@ -216,6 +310,15 @@ public class Turret implements MonitoredSystem, System {
    */
   public boolean atTarget() {
     if (state == State.HOMING || state == State.DISABLED) return false;
+    return atTargetInternal();
+  }
+
+  /**
+   * Gets if the turret is at its target position, regardless of state
+   *
+   * @return true if at target, otherwise false
+   */
+  private boolean atTargetInternal() {
     return areEqual(currentPositionDegrees, targetPositionDegrees, TOLERANCE_DEGREES);
   }
 
@@ -234,13 +337,15 @@ public class Turret implements MonitoredSystem, System {
   /** Updates telemetry sent from the turret */
   private void updateTelemetry() {
     tlm.addData("Turret target pos", targetPositionDegrees);
-    tlm.addData("Turret simulated pos", positionSimulation.getValue());
-    tlm.addData("Turret current pos", currentPositionDegrees);
+    tlm.addData("Turret raw simulated pos", positionSimulation.getValue());
+    tlm.addData("Turret raw current pos", currentPositionDegrees);
+    tlm.addData("Turret pos ticks", motor.getCurrentPosition());
     tlm.addData("Turret PID target", subTargetPositionDegrees);
     tlm.addData("Turret state", state);
     tlm.addData("Turret status", status);
     tlm.addData("Turret encoder reading #", encoderTracker.getNumReadings());
     tlm.addData("Turret motor overcurrent", motor.isOverCurrent());
+    tlm.addData("Turret sensor", breakBeam.getState());
   }
 
   /** Reads and updates the current position of the turret (not normalized) */
@@ -254,6 +359,12 @@ public class Turret implements MonitoredSystem, System {
   private void resetEncoder() {
     motor.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
     motor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+    currentPositionDegrees = 0.0;
+    positionSimulation.setValue(currentPositionDegrees);
+    positionSimulation.setTarget(currentPositionDegrees);
+    targetFollower.setValue(currentPositionDegrees);
+    targetFollower.setTarget(currentPositionDegrees);
+    controller.reset();
   }
 
   /** Calculates and applies the correct motor power for the turret */
@@ -297,9 +408,11 @@ public class Turret implements MonitoredSystem, System {
           targetPositionDegrees = 0.0;
           // intentional fallthrough
         } else { // beam remains unbroken, thus, we still don't know where we are
-          // if turret has moved 180 degrees one way, reverse
-          if (targetFollower.isAtTarget() && atTarget()) {
-            targetPositionDegrees = targetPositionDegrees == 180.0 ? -180.0 : 180.0;
+          // if turret has moved fully one way, reverse
+          if (targetFollower.isAtTarget() && atTargetInternal()) {
+            homingState =
+                homingState == HomingState.FORWARD ? HomingState.BACK : HomingState.FORWARD;
+            targetPositionDegrees = homingState.target;
           }
           break;
         }
