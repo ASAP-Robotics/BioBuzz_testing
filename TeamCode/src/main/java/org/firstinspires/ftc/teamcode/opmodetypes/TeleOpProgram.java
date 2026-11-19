@@ -55,6 +55,9 @@ public class TeleOpProgram extends CommonProgram {
     if (gamepad1.yWasPressed()) { // eject intake
       robot.scoringSystem.ejectIntake();
     }
+    if (gamepad2.aWasPressed()) { // shooting backup deploy blocker
+      robot.scoringSystem.shootBackup();
+    }
 
     double forward = -gamepad1.right_stick_y;
     double lateral = -gamepad1.right_stick_x;

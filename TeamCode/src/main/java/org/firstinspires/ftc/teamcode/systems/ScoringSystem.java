@@ -34,7 +34,8 @@ public class ScoringSystem implements System {
     EJECTING_INTAKE,
     FULL,
     SHOT_QUEUED,
-    SHOOTING
+    SHOOTING,
+    SHOOTING_BACKUP
   }
 
   public enum Basket {
@@ -47,6 +48,9 @@ public class ScoringSystem implements System {
 
   /** How long to shoot for, in milliseconds */
   public static double SHOOTING_TIME_MS = 5000.0;
+
+  /** How long to deploy whe blocker for when using the shooing backup, in milliseconds */
+  public static double SHOT_BACKUP_TIME_MS = 500;
 
   /** How long to eject for, in milliseconds */
   public static double EJECTING_TIME_MS = 1000.0;
@@ -187,6 +191,15 @@ public class ScoringSystem implements System {
   }
 
   /**
+   * Deploys the blocker in an attempt to force pollen out of the shooter
+   */
+  public void shootBackup() {
+    if (state != State.SHOOTING) return;
+
+    setState(State.SHOOTING_BACKUP);
+  }
+
+  /**
    * Gets the state of the scoring system
    * @return the current state
    */
@@ -234,6 +247,16 @@ public class ScoringSystem implements System {
         transfer.setState(Transfer.State.DISABLED);
         aimAtTarget();
         if (locked()) {
+          setState(State.SHOOTING);
+        }
+        break;
+
+      case SHOOTING_BACKUP:
+        intake.setState(Intake.State.INTAKING);
+        transfer.setState(Transfer.State.INTAKING); // will set the blocker out, forcing pollen out
+        aimAtTarget();
+        // we don't want to go back to intaking from this
+        if (stateTime.milliseconds() > SHOT_BACKUP_TIME_MS) {
           setState(State.SHOOTING);
         }
         break;
