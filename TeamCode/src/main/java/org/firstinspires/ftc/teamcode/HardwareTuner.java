@@ -11,21 +11,28 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Flywheel;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Transfer;
+import org.firstinspires.ftc.teamcode.hardware.mechanisms.Turret;
 import org.firstinspires.ftc.teamcode.types.AllianceColor;
 import org.firstinspires.ftc.teamcode.types.OpModeType;
+import org.firstinspires.ftc.teamcode.utils.LoopTimeTracker;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 
-@TeleOp(name = "Flywheel tuner", group = "Tuning")
+@TeleOp(name = "Tuning program", group = "Tuning")
 @Configurable
-public class FlywheelTuner extends OpMode {
-  public static double RPM = 0.0;
-  public static Intake.State intakeState = Intake.State.DISABLED;
-  public static Transfer.State transferState = Transfer.State.DISABLED;
-
-  Flywheel flywheel;
+public class HardwareTuner extends OpMode {
+  private Turret turret;
+  private Flywheel flywheel;
   Intake intake;
   Transfer transfer;
-  TelemetryManager tlm;
+  private LoopTimeTracker loopTimeTracker;
+
+  private TelemetryManager tlm;
+
+  public static double TURRET_POSITION = 0.0;
+  public static boolean HOME_TURRET = false;
+  public static double FLYWHEEL_RPM = 0.0;
+  public static Intake.State INTAKE_STATE = Intake.State.DISABLED;
+  public static Transfer.State TRANSFER_STATE = Transfer.State.DISABLED;
 
   @Override
   public void init() {
@@ -33,50 +40,67 @@ public class FlywheelTuner extends OpMode {
     OpModeInfo.type = OpModeType.TELEOP;
     OpModeInfo.robotLoaded = false;
 
+    this.turret = new Turret(hardwareMap, "Turret", "TurretSensor");
     this.flywheel = new Flywheel(hardwareMap, "Flywheel");
     this.intake = new Intake(hardwareMap, "Intake");
     this.transfer = new Transfer(hardwareMap, "Transfer", "TransferSensor", "Blocker", "BlockerEncoder");
+    this.loopTimeTracker = new LoopTimeTracker();
     this.tlm = PanelsTelemetry.INSTANCE.getTelemetry();
 
+    turret.init();
     flywheel.init();
     intake.init();
     transfer.init();
 
+    Turret.TELEMETRY_ENABLE = true;
     Flywheel.TUNING = true;
     Intake.TELEMETRY_ENABLE = true;
     Transfer.TELEMETRY_ENABLE = true;
+
+    loopTimeTracker.start();
   }
 
-  @Override
-  public void init_loop() {
+  public void initLoop() {
+    turret.initLoop();
     flywheel.initLoop();
     intake.initLoop();
     transfer.initLoop();
+    loopTimeTracker.loop();
   }
 
   @Override
   public void start() {
+    turret.start();
     flywheel.start();
     intake.start();
     transfer.start();
+    loopTimeTracker.reset();
   }
 
   @Override
   public void loop() {
-    flywheel.setTargetRpm(RPM);
-    intake.setState(intakeState);
-    transfer.setState(transferState);
+    turret.setPosition(TURRET_POSITION, false);
+    flywheel.setTargetRpm(FLYWHEEL_RPM);
+    intake.setState(INTAKE_STATE);
+    transfer.setState(TRANSFER_STATE);
 
+    if (HOME_TURRET) {
+      turret.home();
+      HOME_TURRET = false;
+    }
+
+    turret.loop();
     flywheel.loop();
     intake.loop();
     transfer.loop();
+    loopTimeTracker.loop();
 
     tlm.update();
   }
 
-  @Override
   public void stop() {
-    flywheel.stop();
+    turret.stop();
+    turret.stop();
     intake.stop();
     transfer.stop();
   }

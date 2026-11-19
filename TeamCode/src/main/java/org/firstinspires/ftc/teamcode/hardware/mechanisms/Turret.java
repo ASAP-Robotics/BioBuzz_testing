@@ -23,6 +23,7 @@ import org.firstinspires.ftc.teamcode.types.OpModeType;
 import org.firstinspires.ftc.teamcode.types.SystemReport;
 import org.firstinspires.ftc.teamcode.types.SystemStatus;
 import org.firstinspires.ftc.teamcode.utils.Follower;
+import org.firstinspires.ftc.teamcode.utils.MathUtils;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 import org.firstinspires.ftc.teamcode.utils.TimeWindowAverage;
 
@@ -65,11 +66,14 @@ public class Turret implements MonitoredSystem, System {
   /** Roughly how close the turret can be to its target position and be "at target" */
   public static double TOLERANCE_DEGREES = 2.0;
 
-  /** The center position of the turrets physical range of motion */
-  public static double FLIP_POINT_DEGREES = 90.0;
+  /** The physical minimum position the turret can move to (0 = straight forward) */
+  public static double MIN_POSITION_DEGREES = -180.0;
+
+  /** The physical maximum position the turret can move to (0 = straight forward) */
+  public static double MAX_POSITION_DEGREES = 200.0;
 
   /** The value to offset target positions by, in degrees (if zero, 0 will be at break beam tab) */
-  public static double TARGET_OFFSET_DEGREES = 0.0;
+  public static double TARGET_OFFSET_DEGREES = -20.0;
 
   /** How large of a time window to monitor encoder value for change over, in milliseconds */
   public static double ENCODER_DISCONNECT_WINDOW = 1000;
@@ -84,7 +88,7 @@ public class Turret implements MonitoredSystem, System {
   public static double ENCODER_DISCONNECT_MAX_POWER = 0.2;
 
   /** Turret PID tuning constants */
-  public static double KP = 0.0, KI = 0.0, KD = 0.0; // todo tune
+  public static double KP = 0.03, KI = 0.001, KD = 0.0015; // tuned well enough for now
 
   // **Final vars***********************************************************************************
   /** The motor driving the turret */
@@ -119,16 +123,16 @@ public class Turret implements MonitoredSystem, System {
   /** The current operational status of the turret */
   private SystemStatus status = SystemStatus.UNKNOWN;
 
-  /** The position the turret is currently moving to, in degrees */
+  /** The position the turret is currently moving to, in degrees (encoder space, not robot space) */
   private double targetPositionDegrees = 0.0;
 
-  /** The position the PID controller of the turret is moving to, in degrees */
+  /** The position the PID controller of the turret is moving to, in degrees (encoder space) */
   private double subTargetPositionDegrees = 0.0;
 
-  /** The position the turret is currently at, in degrees */
+  /** The position the turret is currently at, in degrees (encoder space, not robot space) */
   private double currentPositionDegrees = 0.0;
 
-  // todo fix broken encoder logic / math
+  // todo fix flip around
 
   public Turret(HardwareMap hwMap, String motorName, String breakBeamName) {
     this.motor = hwMap.get(DcMotorEx.class, motorName);
@@ -200,17 +204,47 @@ public class Turret implements MonitoredSystem, System {
       throw new IllegalArgumentException("Degrees must be a finite number");
     }
 
-    // todo test, also some of this could probably be done in a more elegant way
-
     if (state == State.HOMING) return; // disallow setting position if homing
 
-    degrees += TARGET_OFFSET_DEGREES; // apply target offset
-    degrees = normalizeAround(degrees, FLIP_POINT_DEGREES); // normalize, constrain (will flip)
+    // todo test
 
-    // if target position is more than 180 degrees different, it will probably have flipped
-    if (allowFlipping || (Math.abs(degrees - targetPositionDegrees) <= 180.0)) {
-      targetPositionDegrees = degrees;
+    // the current position of the turret relative to the robot (0 = forward)
+    double currentDegreesRobot = currentPositionDegrees - TARGET_OFFSET_DEGREES;
+
+    degrees = normalizeAround(degrees, 0.0); // normalize to be in nice number space
+
+    // we assume that min is not less than -360, and max is not more than +360
+    double[] possiblePositions = {degrees, degrees + 360.0, degrees - 360.0};
+    double closestInBounds = Double.NaN; // for possible positions with flipping
+    double closest = Double.NaN; // for impossible positions or no flipping
+    double bestDistInBounds = Double.POSITIVE_INFINITY;
+    double bestDist = Double.POSITIVE_INFINITY;
+
+    // find closest position within bounds
+    for (double i : possiblePositions) {
+      double dist = Math.abs(i - currentDegreesRobot);
+      if (dist < bestDist) { // could be out of bounds
+        closest = i;
+        bestDist = dist;
+      }
+
+      if (i >= MIN_POSITION_DEGREES && i <= MAX_POSITION_DEGREES) { // if in bounds
+        if (dist < bestDistInBounds) { // is in bounds
+          closestInBounds = i;
+          bestDistInBounds = dist;
+        }
+      }
     }
+
+    if (Double.isNaN(closestInBounds) || !allowFlipping) { // target out of bounds, or no flipping
+      // if we can't flip around, or if the target is impossible, use closest and constrain
+      degrees = MathUtils.clamp(closest, MIN_POSITION_DEGREES, MAX_POSITION_DEGREES);
+
+    } else { // target position is reachable
+      degrees = closestInBounds;
+    }
+
+    targetPositionDegrees = degrees + TARGET_OFFSET_DEGREES; // apply target offset
   }
 
   /** Starts homing the turret, recalibrating its "zero position" */
@@ -281,8 +315,8 @@ public class Turret implements MonitoredSystem, System {
   /** Updates telemetry sent from the turret */
   private void updateTelemetry() {
     tlm.addData("Turret target pos", targetPositionDegrees);
-    tlm.addData("Turret simulated pos", positionSimulation.getValue());
-    tlm.addData("Turret current pos", currentPositionDegrees);
+    tlm.addData("Turret raw simulated pos", positionSimulation.getValue());
+    tlm.addData("Turret raw current pos", currentPositionDegrees);
     tlm.addData("Turret pos ticks", motor.getCurrentPosition());
     tlm.addData("Turret PID target", subTargetPositionDegrees);
     tlm.addData("Turret state", state);
@@ -294,7 +328,6 @@ public class Turret implements MonitoredSystem, System {
 
   /** Reads and updates the current position of the turret (not normalized) */
   private void updateCurrentPosition() {
-    // todo fix position issues (maybe not here? IDK)
     int currentPosTicks = motor.getCurrentPosition();
     currentPositionDegrees = ticksToAngleUnits(currentPosTicks, TICKS_PER_REV, AngleUnit.DEGREES);
     encoderTracker.addReading(currentPosTicks);
