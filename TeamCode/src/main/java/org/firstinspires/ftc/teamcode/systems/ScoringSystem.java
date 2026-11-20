@@ -48,7 +48,7 @@ public class ScoringSystem implements System {
   public static boolean TELEMETRY_ENABLE = false;
 
   /** How long to shoot for, in milliseconds */
-  public static double SHOOTING_TIME_MS = 5000.0;
+  public static double SHOOTING_TIME_MS = 3000.0;
 
   /** How long to deploy whe blocker for when using the shooing backup, in milliseconds */
   public static double SHOT_BACKUP_TIME_MS = 500;
@@ -60,9 +60,9 @@ public class ScoringSystem implements System {
   public static double TURRET_REST_POSITION_DEGREES = 0.0;
 
   /** The RPM of the flywheel when not ready to shoot or shooting */
-  public static double FLYWHEEL_IDLE_RPM = 500.0; // todo tune
+  public static double FLYWHEEL_IDLE_RPM = 500.0;
 
-  public static double FLYWHEEL_MANUAL_AIM_RPM = 3300.0; // todo tune
+  public static double FLYWHEEL_MANUAL_AIM_RPM = 3200.0;
 
   private final Intake intake;
   private final Transfer transfer;
@@ -195,6 +195,31 @@ public class ScoringSystem implements System {
     if (state != State.SHOOTING) return;
 
     setState(State.SHOOTING_BACKUP);
+  }
+
+  /**
+   * Cancels the active shot
+   */
+  public void cancelShot() {
+    if (state != State.SHOT_QUEUED && state != State.SHOOTING) return;
+
+    setState(State.INTAKING);
+  }
+
+  /**
+   * Cancels or reverses setting the state as full
+   */
+  public void setNotFull() {
+    if (state != State.FULL) return;
+
+    setState(State.INTAKING);
+  }
+
+  /**
+   * Homes the turret. Use with caution, as a backup
+   */
+  public void homeTurret() {
+    turret.home();
   }
 
   /**
@@ -335,7 +360,11 @@ public class ScoringSystem implements System {
     flywheel.setTargetRpm(FLYWHEEL_IDLE_RPM);
   }
 
-  private void setBasket(Basket basket) {
+  /**
+   * Sets which basket the scoring system will aim at
+   * @param basket the basket to aim at, either close or far
+   */
+  public void setBasket(Basket basket) {
     switch (basket) {
       case FAR:
         if (OpModeInfo.color == AllianceColor.RED) {

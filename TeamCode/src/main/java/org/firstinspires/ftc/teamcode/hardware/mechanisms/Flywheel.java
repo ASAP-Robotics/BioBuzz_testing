@@ -39,7 +39,7 @@ public class Flywheel implements System, MonitoredSystem {
   public static double MAX_OPERATIONAL_RPM_ERROR = 100.0;
 
   /** The most error the actual flywheel RPM can have from its target and be "at target" */
-  public static double MAX_AT_TARGET_RPM_ERROR = 20.0;
+  public static double MAX_AT_TARGET_RPM_ERROR = 25.0;
 
   /** The overcurrent threshold for the flywheel motor, in amps */
   public static double MAX_OPERATIONAL_MOTOR_CURRENT = 10.0;
@@ -218,6 +218,7 @@ public class Flywheel implements System, MonitoredSystem {
     tlm.addData("Flywheel actual RPM", actualRpm);
     tlm.addData("Flywheel simulated RPM", rpmSimulation.getValue());
     tlm.addData("Flywheel status", status);
+    tlm.addData("Flywheel at target", isAtTargetRpm());
     tlm.addData("Flywheel inst. RPM error", Math.abs(targetRpm - actualRpm));
     tlm.addData("Flywheel avg. RPM error", averageRpmError.getAverage().average);
     tlm.addData("Flywheel avg. reading #", averageRpmError.getAverage().readingNumber);

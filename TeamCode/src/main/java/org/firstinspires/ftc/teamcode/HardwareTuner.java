@@ -15,7 +15,7 @@ import org.firstinspires.ftc.teamcode.types.OpModeType;
 import org.firstinspires.ftc.teamcode.utils.LoopTimeTracker;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 
-@TeleOp(name = "Tuning program", group = "Tuning")
+@TeleOp(name = "Hardware tuner", group = "Tuning")
 @Configurable
 public class HardwareTuner extends OpMode {
   private Turret turret;
@@ -28,6 +28,7 @@ public class HardwareTuner extends OpMode {
 
   public static double TURRET_POSITION = 0.0;
   public static boolean HOME_TURRET = false;
+  public static boolean ALLOW_FLIPPING = true;
   public static double FLYWHEEL_RPM = 0.0;
   public static Intake.State INTAKE_STATE = Intake.State.DISABLED;
   public static Transfer.State TRANSFER_STATE = Transfer.State.DISABLED;
@@ -78,7 +79,7 @@ public class HardwareTuner extends OpMode {
 
   @Override
   public void loop() {
-    turret.setPosition(TURRET_POSITION, false);
+    turret.setPosition(TURRET_POSITION, ALLOW_FLIPPING);
     flywheel.setTargetRpm(FLYWHEEL_RPM);
     intake.setState(INTAKE_STATE);
     transfer.setState(TRANSFER_STATE);

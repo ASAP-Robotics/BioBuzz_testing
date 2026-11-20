@@ -5,7 +5,7 @@ import static org.firstinspires.ftc.teamcode.constants.Tolerances.MOTOR_UPDATE_T
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.areEqual;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.clamp;
 import static org.firstinspires.ftc.teamcode.utils.MathUtils.normalizeAround;
-import static org.firstinspires.ftc.teamcode.utils.MathUtils.ticksToAngleUnits;
+import static org.firstinspires.ftc.teamcode.utils.MathUtils.ticksToDegrees;
 
 import com.arcrobotics.ftclib.controller.PIDController;
 import com.bylazar.configurables.annotations.Configurable;
@@ -14,7 +14,6 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.CurrentUnit;
 import org.firstinspires.ftc.teamcode.hardware.sensors.BreakBeam;
 import org.firstinspires.ftc.teamcode.interfaces.MonitoredSystem;
@@ -75,16 +74,16 @@ public class Turret implements MonitoredSystem, System {
   public static double NORMAL_DEGREES_PER_SECOND = Double.POSITIVE_INFINITY;
 
   /** The speed the turret will attempt to move at when homing */
-  public static double HOMING_DEGREES_PER_SECOND = 30.0; // todo tune
+  public static double HOMING_DEGREES_PER_SECOND = 40.0;
 
   /** Roughly how close the turret can be to its target position and be "at target" */
-  public static double TOLERANCE_DEGREES = 2.0;
+  public static double TOLERANCE_DEGREES = 5.0;
 
   /** The physical minimum position the turret can move to (0 = straight forward) */
-  public static double MIN_POSITION_DEGREES = -180.0;
+  public static double MIN_POSITION_DEGREES = -95.0;
 
   /** The physical maximum position the turret can move to (0 = straight forward) */
-  public static double MAX_POSITION_DEGREES = 200.0;
+  public static double MAX_POSITION_DEGREES = 275.0;
 
   /**
    * The value to offset target positions by, in degrees (if zero, 0 will be at break beam tab).
@@ -152,8 +151,6 @@ public class Turret implements MonitoredSystem, System {
 
   /** The position the turret is currently at, in degrees (encoder space, not robot space) */
   private double currentPositionDegrees = 0.0;
-
-  // todo fix flip around
 
   public Turret(HardwareMap hwMap, String motorName, String breakBeamName) {
     this.motor = hwMap.get(DcMotorEx.class, motorName);
@@ -343,6 +340,7 @@ public class Turret implements MonitoredSystem, System {
     tlm.addData("Turret PID target", subTargetPositionDegrees);
     tlm.addData("Turret state", state);
     tlm.addData("Turret status", status);
+    tlm.addData("Turret at target", atTarget());
     tlm.addData("Turret encoder reading #", encoderTracker.getNumReadings());
     tlm.addData("Turret motor overcurrent", motor.isOverCurrent());
     tlm.addData("Turret sensor", breakBeam.getState());
@@ -351,7 +349,7 @@ public class Turret implements MonitoredSystem, System {
   /** Reads and updates the current position of the turret (not normalized) */
   private void updateCurrentPosition() {
     int currentPosTicks = motor.getCurrentPosition();
-    currentPositionDegrees = ticksToAngleUnits(currentPosTicks, TICKS_PER_REV, AngleUnit.DEGREES);
+    currentPositionDegrees = ticksToDegrees(currentPosTicks, TICKS_PER_REV);
     encoderTracker.addReading(currentPosTicks);
   }
 

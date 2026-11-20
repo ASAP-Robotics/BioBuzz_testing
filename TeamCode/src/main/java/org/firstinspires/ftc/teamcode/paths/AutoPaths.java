@@ -8,17 +8,23 @@ import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 import com.pedropathing.api.Paths;
 import com.pedropathing.api.PoseFactory;
 import com.pedropathing.ivy.Command;
+import com.pedropathing.ivy.commands.Commands;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
+
+import org.firstinspires.ftc.teamcode.commands.SetBasket;
 import org.firstinspires.ftc.teamcode.commands.SetFlowerRamp;
 import org.firstinspires.ftc.teamcode.commands.Shoot;
 import org.firstinspires.ftc.teamcode.configurations.RobotHardware;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.FlowerRamp;
+import org.firstinspires.ftc.teamcode.systems.ScoringSystem;
 import org.firstinspires.ftc.teamcode.types.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 
 public class AutoPaths {
   private final RobotHardware robot;
+
+  private final ScoringSystem.Basket basket;
 
   private final Pose start;
   private final Pose shoot;
@@ -40,6 +46,10 @@ public class AutoPaths {
             ? PoseFactory.degrees()
             : PoseFactory.degrees().rotateAround(70.75, 70.75, 180.0);
 
+    this.basket =
+        OpModeInfo.color == AllianceColor.RED ?
+            ScoringSystem.Basket.CLOSE : ScoringSystem.Basket.FAR;
+
     this.robot = r;
 
     // ALL PATH POINTS HERE ARE FOR RED; blue paths are created from them
@@ -48,9 +58,14 @@ public class AutoPaths {
     this.inFrontOfFlower = p.of(18, 47, 180);
     this.shoot_flower_control_1 = p.of(36, 28, 0);
     this.shoot_flower_control_2 = p.of(32, 48, 0);
-    this.intakeFromFlower = p.of(12, 47, 180);
+    this.intakeFromFlower = p.of(14, 47, 180);
     this.park = p.of(12, 90, 90);
     this.driveToParkControl1 = p.of(18, 28, 0);
+  }
+
+  protected Command setBasket() {
+    // could be updated to support flipping, but fine for now
+    return new SetBasket(robot, basket);
   }
 
   protected Command shoot() {
@@ -104,9 +119,10 @@ public class AutoPaths {
    */
   public Command getCloseAuto() {
     return sequential(
-        follow(robot.follower, driveToShoot1()),
+        parallel(follow(robot.follower, driveToShoot1()), setBasket()),
         parallel(shoot(), dropRamp()),
         follow(robot.follower, driveToEmptyFlower()),
+        Commands.waitMs(5000),
         follow(robot.follower, driveToShoot2()),
         parallel(shoot(), raiseRamp()),
         follow(robot.follower, driveToPark()));
