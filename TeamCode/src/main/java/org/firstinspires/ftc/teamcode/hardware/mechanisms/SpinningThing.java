@@ -34,7 +34,7 @@ public abstract class SpinningThing implements System, MonitoredSystem {
   public static int AVERAGE_MIN_READINGS = 25;
 
   /** The maximum power to apply to the motor if it is overcurrent */
-  public static double OVERCURRENT_MAX_MOTOR_POWER = 0.75;
+  public static double OVERCURRENT_MAX_MOTOR_POWER = 0.5;
 
   /** The angle unit to be used for motor operations */
   protected static final AngleUnit ANGLE_UNIT = AngleUnit.DEGREES;

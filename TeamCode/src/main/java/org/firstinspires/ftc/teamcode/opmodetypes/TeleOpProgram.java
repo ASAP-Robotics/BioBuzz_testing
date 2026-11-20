@@ -1,6 +1,7 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.opmodetypes;
 
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -20,10 +21,21 @@ public class TeleOpProgram extends CommonProgram {
   }
 
   @Override
+  public void start() {
+    resetPosition();
+
+    super.start();
+  }
+
+  @Override
   public void loop() {
     updateDriverControls();
 
     super.loop();
+  }
+
+  public void resetPosition() {
+    robot.follower.setPose(new Pose(9.0, 9.0, Math.PI / 2));
   }
 
   /** Handles driver controls */
@@ -54,6 +66,9 @@ public class TeleOpProgram extends CommonProgram {
     }
     if (gamepad2.bWasPressed()) { // switch aiming mode
       robot.scoringSystem.switchAimingMode();
+    }
+    if (gamepad1.dpadUpWasPressed()) {
+      resetPosition();
     }
 
     double forward = -gamepad1.right_stick_y;

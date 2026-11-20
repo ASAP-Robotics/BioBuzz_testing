@@ -91,7 +91,7 @@ public class Turret implements MonitoredSystem, System {
    * This is used to account for the physical offset of where the break beam sensor and tab are (the
    * beam isn't broken when the turret is straight forward)
    */
-  public static double TARGET_OFFSET_DEGREES = -20.0;
+  public static double TARGET_OFFSET_DEGREES = -21.0;
 
   /** How large of a time window to monitor encoder value for change over, in milliseconds */
   public static double ENCODER_DISCONNECT_WINDOW = 1000;

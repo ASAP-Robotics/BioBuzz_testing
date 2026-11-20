@@ -7,6 +7,8 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
+
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.constants.BasketPositions;
 import org.firstinspires.ftc.teamcode.constants.LookupTableContents;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Flywheel;
@@ -18,8 +20,6 @@ import org.firstinspires.ftc.teamcode.types.AllianceColor;
 import org.firstinspires.ftc.teamcode.utils.AimingCalculator;
 import org.firstinspires.ftc.teamcode.utils.LookupTable;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
-
-// todo add ejecting of just intake, not transfer
 
 /** Class to control intake, transfer, turret, flywheel, etc. (scoring-related subsystems) */
 @Configurable
@@ -57,7 +57,7 @@ public class ScoringSystem implements System {
   public static double EJECTING_TIME_MS = 1000.0;
 
   /** The position of the turret when not tracking the target, or when manually aiming */
-  public static double TURRET_REST_POSITION_DEGREES = 0.0; // todo tune
+  public static double TURRET_REST_POSITION_DEGREES = 0.0;
 
   /** The RPM of the flywheel when not ready to shoot or shooting */
   public static double FLYWHEEL_IDLE_RPM = 500.0; // todo tune
@@ -284,6 +284,9 @@ public class ScoringSystem implements System {
     tlm.addData("Scoring system state", state);
     tlm.addData("Scoring system basket", basket);
     tlm.addData("Scoring system aiming mode", aimingMode);
+    tlm.addData("Distance", aimingCalculator.getDistance());
+    tlm.addData("Heading", aimingCalculator.getHeading());
+    tlm.addData("Scoring system robot pose", aimingCalculator.getPosition());
   }
 
   /**
@@ -314,8 +317,9 @@ public class ScoringSystem implements System {
   /** Handles aiming at the target, either automatically or manually */
   private void aimAtTarget() {
     if (aimingMode == AimingMode.AUTOMATIC) {
+      double robotHeadingDegrees = AngleUnit.DEGREES.fromRadians(aimingCalculator.getPosition().heading());
       turret.setPosition(
-          aimingCalculator.getHeading() - aimingCalculator.getPosition().heading(),
+          robotHeadingDegrees - aimingCalculator.getHeading(),
           state != State.SHOOTING);
       LookupTable.Entry entry = lookupTable.getKeyInterpolate(aimingCalculator.getDistance());
       flywheel.setTargetRpm(entry.value1);

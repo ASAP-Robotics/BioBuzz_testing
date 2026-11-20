@@ -46,6 +46,7 @@ public class Shoot implements Command {
 
   @Override
   public void start() {
+    robot.scoringSystem.switchTarget(); // todo fix
     robot.scoringSystem.shoot();
   }
 
