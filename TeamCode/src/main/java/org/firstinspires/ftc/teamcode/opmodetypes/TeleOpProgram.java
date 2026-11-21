@@ -22,7 +22,7 @@ public class TeleOpProgram extends CommonProgram {
 
   @Override
   public void start() {
-    resetPosition();
+    //resetPosition();
 
     super.start();
   }
@@ -40,10 +40,13 @@ public class TeleOpProgram extends CommonProgram {
 
   /** Handles driver controls */
   private void updateDriverControls() {
-    if (gamepad1.right_trigger >= 0.5) { // SHIFT
+    if (gamepad1.right_trigger >= 0.5 && gamepad1.left_trigger >= 0.5) { // SHIFT + ALT
       if (gamepad1.rightBumperWasPressed()) { // cancel shot
         robot.scoringSystem.cancelShot();
       }
+
+    } else if (gamepad1.right_trigger >= 0.5) { // SHIFT
+
       if (gamepad1.leftBumperWasPressed()) { // cancel set full
         robot.scoringSystem.setNotFull();
       }

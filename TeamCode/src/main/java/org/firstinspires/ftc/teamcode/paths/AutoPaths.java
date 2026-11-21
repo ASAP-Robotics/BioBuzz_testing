@@ -53,7 +53,7 @@ public class AutoPaths {
     this.robot = r;
 
     // ALL PATH POINTS HERE ARE FOR RED; blue paths are created from them
-    this.start = p.of(56, 9, 90);
+    this.start = p.of(56.25, 9, 90);
     this.shoot = p.of(56, 30, 90);
     this.inFrontOfFlower = p.of(18, 47, 180);
     this.shoot_flower_control_1 = p.of(36, 28, 0);
@@ -84,19 +84,19 @@ public class AutoPaths {
     return Paths.line(start, shoot).linear(start, shoot);
   }
 
-  protected Path driveToEmptyFlower() {
-
-    return Paths.path(
-        Paths.curve(shoot, shoot_flower_control_1, shoot_flower_control_2, inFrontOfFlower)
-            .linear(shoot, inFrontOfFlower),
-        Paths.line(inFrontOfFlower, intakeFromFlower).constant(intakeFromFlower));
+  protected Path driveToEmptyFlower1() {
+    return Paths.curve(shoot, shoot_flower_control_1, shoot_flower_control_2, inFrontOfFlower).linear(shoot, inFrontOfFlower);
+  }
+  protected Path driveToEmptyFlower2() {
+    return Paths.line(inFrontOfFlower, intakeFromFlower).constant(intakeFromFlower);
   }
 
-  protected Path driveToShoot2() {
-    return Paths.path(
-        Paths.line(intakeFromFlower, inFrontOfFlower).constant(inFrontOfFlower),
-        Paths.curve(inFrontOfFlower, shoot_flower_control_2, shoot_flower_control_1, shoot)
-            .linear(inFrontOfFlower, shoot));
+  protected Path driveToShoot2_1() {
+    return Paths.line(intakeFromFlower, inFrontOfFlower).constant(inFrontOfFlower);
+  }
+
+  protected Path driveToShoot2_2() {
+    return Paths.curve(inFrontOfFlower, shoot_flower_control_2, shoot_flower_control_1, shoot).linear(inFrontOfFlower, shoot);
   }
 
   protected Path driveToPark() {
@@ -119,12 +119,17 @@ public class AutoPaths {
    */
   public Command getCloseAuto() {
     return sequential(
+        raiseRamp(),
         parallel(follow(robot.follower, driveToShoot1()), setBasket()),
-        parallel(shoot(), dropRamp()),
-        follow(robot.follower, driveToEmptyFlower()),
+        shoot(),
+        dropRamp(),
+        follow(robot.follower, driveToEmptyFlower1()),
+        follow(robot.follower, driveToEmptyFlower2()),
         Commands.waitMs(5000),
-        follow(robot.follower, driveToShoot2()),
-        parallel(shoot(), raiseRamp()),
+        follow(robot.follower, driveToShoot2_1()),
+        follow(robot.follower, driveToShoot2_2()),
+        raiseRamp(),
+        shoot(),
         follow(robot.follower, driveToPark()));
   }
 }

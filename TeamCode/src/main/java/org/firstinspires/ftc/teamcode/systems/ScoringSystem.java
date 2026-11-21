@@ -8,6 +8,7 @@ import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.constants.BasketPositions;
 import org.firstinspires.ftc.teamcode.constants.LookupTableContents;
@@ -72,6 +73,8 @@ public class ScoringSystem implements System {
   private final LookupTable lookupTable = new LookupTable(LookupTableContents.TABLE_CONTENTS);
   private final ElapsedTime stateTime;
   private final TelemetryManager tlm;
+  /** Driver station telemetry */
+  private final Telemetry telemetry;
 
   private State state = State.INTAKING;
   private Basket basket = Basket.FAR;
@@ -79,6 +82,7 @@ public class ScoringSystem implements System {
 
   public ScoringSystem(
       HardwareMap hwMap,
+      Telemetry telemetry,
       String intakeMotorName,
       String transferMotorName,
       String transferSensorName,
@@ -87,6 +91,7 @@ public class ScoringSystem implements System {
       String flywheelMotorName,
       String turretMotorName,
       String turretBreakBeamName) {
+    this.telemetry = telemetry;
     this.intake = new Intake(hwMap, intakeMotorName);
     this.transfer =
         new Transfer(
@@ -305,6 +310,12 @@ public class ScoringSystem implements System {
 
   /** Updates telemetry data from scoring system */
   private void updateTelemetry() {
+    // driver station telemetry
+    telemetry.addData("Basket", basket);
+    telemetry.addData("Aiming", aimingMode);
+    telemetry.addData("State", state);
+    telemetry.addData("Color", OpModeInfo.color);
+
     if (!TELEMETRY_ENABLE) return;
     tlm.addData("Scoring system state", state);
     tlm.addData("Scoring system basket", basket);

@@ -6,6 +6,8 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+
+import org.firstinspires.ftc.teamcode.hardware.mechanisms.FlowerRamp;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Flywheel;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Intake;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Transfer;
@@ -18,6 +20,7 @@ import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 @TeleOp(name = "Hardware tuner", group = "Tuning")
 @Configurable
 public class HardwareTuner extends OpMode {
+  private FlowerRamp ramp;
   private Turret turret;
   private Flywheel flywheel;
   Intake intake;
@@ -26,6 +29,7 @@ public class HardwareTuner extends OpMode {
 
   private TelemetryManager tlm;
 
+  public static FlowerRamp.State RAMP_STATE = FlowerRamp.State.STARTING;
   public static double TURRET_POSITION = 0.0;
   public static boolean HOME_TURRET = false;
   public static boolean ALLOW_FLIPPING = true;
@@ -38,7 +42,7 @@ public class HardwareTuner extends OpMode {
     OpModeInfo.color = AllianceColor.RED;
     OpModeInfo.type = OpModeType.TELEOP;
     OpModeInfo.robotLoaded = false;
-
+    this.ramp = new FlowerRamp(hardwareMap, "RampRight", "RampRightEncoder", "RampLeft", "RampLeftEncoder");
     this.turret = new Turret(hardwareMap, "Turret", "TurretSensor");
     this.flywheel = new Flywheel(hardwareMap, "Flywheel");
     this.intake = new Intake(hardwareMap, "Intake");
@@ -47,11 +51,13 @@ public class HardwareTuner extends OpMode {
     this.loopTimeTracker = new LoopTimeTracker();
     this.tlm = PanelsTelemetry.INSTANCE.getTelemetry();
 
+    ramp.init();
     turret.init();
     flywheel.init();
     intake.init();
     transfer.init();
 
+    FlowerRamp.TELEMETRY_ENABLE = true;
     Turret.TELEMETRY_ENABLE = true;
     Flywheel.TUNING = true;
     Intake.TELEMETRY_ENABLE = true;
@@ -61,6 +67,7 @@ public class HardwareTuner extends OpMode {
   }
 
   public void initLoop() {
+    ramp.initLoop();
     turret.initLoop();
     flywheel.initLoop();
     intake.initLoop();
@@ -70,6 +77,7 @@ public class HardwareTuner extends OpMode {
 
   @Override
   public void start() {
+    ramp.start();
     turret.start();
     flywheel.start();
     intake.start();
@@ -79,6 +87,7 @@ public class HardwareTuner extends OpMode {
 
   @Override
   public void loop() {
+    ramp.setState(RAMP_STATE);
     turret.setPosition(TURRET_POSITION, ALLOW_FLIPPING);
     flywheel.setTargetRpm(FLYWHEEL_RPM);
     intake.setState(INTAKE_STATE);
@@ -89,6 +98,7 @@ public class HardwareTuner extends OpMode {
       HOME_TURRET = false;
     }
 
+    ramp.loop();
     turret.loop();
     flywheel.loop();
     intake.loop();
@@ -99,6 +109,7 @@ public class HardwareTuner extends OpMode {
   }
 
   public void stop() {
+    ramp.stop();
     turret.stop();
     turret.stop();
     intake.stop();
