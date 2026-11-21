@@ -5,6 +5,7 @@ import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.Scheduler;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
+import org.firstinspires.ftc.teamcode.hardware.mechanisms.FlowerRamp;
 import org.firstinspires.ftc.teamcode.paths.AutoPaths;
 import org.firstinspires.ftc.teamcode.utils.RobotPose;
 
@@ -28,6 +29,8 @@ public class AutoProgram extends CommonProgram {
   @Override
   public void init() {
     super.init();
+
+    robot.flowerRamp.setState(FlowerRamp.State.STARTING);
 
     Scheduler.reset();
   }

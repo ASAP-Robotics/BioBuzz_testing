@@ -40,60 +40,73 @@ public class TeleOpProgram extends CommonProgram {
 
   /** Handles driver controls */
   private void updateDriverControls() {
-    if (gamepad1.right_trigger >= 0.5 && gamepad1.left_trigger >= 0.5) { // SHIFT + ALT
-      if (gamepad1.rightBumperWasPressed()) { // cancel shot
-        robot.scoringSystem.cancelShot();
-      }
-
-    } else if (gamepad1.right_trigger >= 0.5) { // SHIFT
-
-      if (gamepad1.leftBumperWasPressed()) { // cancel set full
-        robot.scoringSystem.setNotFull();
-      }
-      if (gamepad1.aWasPressed()) { // shooting backup deploy blocker
-        robot.scoringSystem.shootBackup();
-      }
-      if (gamepad1.bWasPressed()) { // switch aiming mode
-        robot.scoringSystem.switchAimingMode();
-      }
-      if (gamepad1.xWasPressed()) { // reset position
-        resetPosition();
-      }
-      if (gamepad1.yWasPressed()) { // home turret
-        robot.scoringSystem.homeTurret();
-      }
-      // todo turret offsets
-
-    } else if (gamepad1.left_trigger >= 0.5) { // ALT
-
-    } else { // NORMAL
-      if (gamepad1.leftBumperWasPressed()) { // set full
-        robot.scoringSystem.setFull();
-      }
-      if (gamepad1.rightBumperWasPressed()) { // shoot
-        robot.scoringSystem.shoot();
-      }
-      if (gamepad1.aWasPressed()) { // switch target
-        robot.scoringSystem.switchTarget();
-      }
-      if (gamepad1.bWasPressed()) { // eject all
-        robot.scoringSystem.eject();
-      }
-      if (gamepad1.xWasPressed()) { // toggle flower ramp
-        robot.flowerRamp.setState(
-            robot.flowerRamp.getState() == FlowerRamp.State.STOWED
-                ? FlowerRamp.State.DEPLOYED
-                : FlowerRamp.State.STOWED);
-      }
-      if (gamepad1.yWasPressed()) { // eject intake
-        robot.scoringSystem.ejectIntake();
-      }
-    }
+    updateCommonDriverControls(gamepad1);
+    updateCommonDriverControls(gamepad2);
 
     double forward = -gamepad1.right_stick_y;
     double lateral = -gamepad1.right_stick_x;
     double turn = -gamepad1.left_stick_x;
 
     robot.follower.manual(forward, lateral, turn); // set driving values
+  }
+
+  /** Updates driver controls common for any (both) gamepad(s) */
+  private void updateCommonDriverControls(Gamepad gamepad) {
+    if (gamepad.right_trigger >= 0.5 && gamepad.left_trigger >= 0.5) { // SHIFT + ALT
+      // cancel shot
+      robot.scoringSystem.cancelShot();
+
+    } else if (gamepad.right_trigger >= 0.5) { // SHIFT
+      if (gamepad.leftBumperWasPressed()) { // cancel set full
+        robot.scoringSystem.setNotFull();
+      }
+      if (gamepad.aWasPressed()) { // shooting backup deploy blocker
+        robot.scoringSystem.shootBackup();
+      }
+      if (gamepad.bWasPressed()) { // switch aiming mode
+        robot.scoringSystem.switchAimingMode();
+      }
+      if (gamepad.xWasPressed()) { // reset position
+        resetPosition();
+      }
+      if (gamepad.yWasPressed()) { // home turret
+        robot.scoringSystem.homeTurret();
+      }
+      // todo turret offsets
+
+    } else if (gamepad.left_trigger >= 0.5) { // ALT
+
+    } else { // NORMAL
+      if (gamepad.leftBumperWasPressed()) { // set full
+        robot.scoringSystem.setFull();
+      }
+      if (gamepad.rightBumperWasPressed()) { // shoot
+        robot.scoringSystem.shoot();
+      }
+      if (gamepad.aWasPressed()) { // switch target
+        robot.scoringSystem.switchTarget();
+      }
+      if (gamepad.bWasPressed()) { // eject all
+        robot.scoringSystem.eject();
+      }
+      if (gamepad.xWasPressed()) { // toggle flower ramp
+        switch (robot.flowerRamp.getState()) {
+          case STARTING:
+            robot.flowerRamp.setState(FlowerRamp.State.DEPLOYED);
+            break;
+
+          case DEPLOYED:
+            robot.flowerRamp.setState(FlowerRamp.State.STOWED);
+            break;
+
+          case STOWED:
+            robot.flowerRamp.setState(FlowerRamp.State.STARTING);
+            break;
+        }
+      }
+      if (gamepad.yWasPressed()) { // eject intake
+        robot.scoringSystem.ejectIntake();
+      }
+    }
   }
 }
