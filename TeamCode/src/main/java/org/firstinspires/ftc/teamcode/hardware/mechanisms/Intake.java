@@ -17,7 +17,7 @@ public class Intake extends SpinningThing {
   public enum State {
     DISABLED(0, 0, 6),
     INTAKING(1, 533, 6),
-    EJECTING(-0.7, -373, 4);
+    EJECTING(-1.0, -373, 4);
 
     State(double motorPower, double targetMinRpm, double targetMaxCurrent) {
       this.motorPower = motorPower;
