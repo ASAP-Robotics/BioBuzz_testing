@@ -1,6 +1,7 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.opmodetypes;
 
+import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.Gamepad;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import org.firstinspires.ftc.robotcore.external.Telemetry;
@@ -20,46 +21,92 @@ public class TeleOpProgram extends CommonProgram {
   }
 
   @Override
+  public void start() {
+    // resetPosition();
+
+    super.start();
+  }
+
+  @Override
   public void loop() {
     updateDriverControls();
 
     super.loop();
   }
 
+  public void resetPosition() {
+    robot.follower.setPose(new Pose(9.0, 9.0, Math.PI / 2));
+  }
+
   /** Handles driver controls */
   private void updateDriverControls() {
-    if (gamepad1.leftBumperWasPressed()) { // set full
-      robot.scoringSystem.setFull();
-    }
-    if (gamepad1.rightBumperWasPressed()) { // shoot
-      robot.scoringSystem.shoot();
-    }
-    if (gamepad1.aWasPressed()) { // switch target
-      robot.scoringSystem.switchTarget();
-    }
-    if (gamepad1.bWasPressed()) { // eject all
-      robot.scoringSystem.eject();
-    }
-    if (gamepad1.xWasPressed()) { // toggle flower ramp
-      robot.flowerRamp.setState(
-          robot.flowerRamp.getState() == FlowerRamp.State.STOWED
-              ? FlowerRamp.State.DEPLOYED
-              : FlowerRamp.State.STOWED);
-    }
-    if (gamepad1.yWasPressed()) { // eject intake
-      robot.scoringSystem.ejectIntake();
-    }
-    if (gamepad2.aWasPressed()) { // shooting backup deploy blocker
-      robot.scoringSystem.shootBackup();
-    }
-    if (gamepad2.bWasPressed()) { // switch aiming mode
-      robot.scoringSystem.switchAimingMode();
-    }
+    updateCommonDriverControls(gamepad1);
+    updateCommonDriverControls(gamepad2);
 
     double forward = -gamepad1.right_stick_y;
     double lateral = -gamepad1.right_stick_x;
     double turn = -gamepad1.left_stick_x;
 
     robot.follower.manual(forward, lateral, turn); // set driving values
+  }
+
+  /** Updates driver controls common for any (both) gamepad(s) */
+  private void updateCommonDriverControls(Gamepad gamepad) {
+    if (gamepad.right_trigger >= 0.5 && gamepad.left_trigger >= 0.5) { // SHIFT + ALT
+      // cancel shot
+      robot.scoringSystem.cancelShot();
+
+    } else if (gamepad.right_trigger >= 0.5) { // SHIFT
+      if (gamepad.leftBumperWasPressed()) { // cancel set full
+        robot.scoringSystem.setNotFull();
+      }
+      if (gamepad.aWasPressed()) { // shooting backup deploy blocker
+        robot.scoringSystem.shootBackup();
+      }
+      if (gamepad.bWasPressed()) { // switch aiming mode
+        robot.scoringSystem.switchAimingMode();
+      }
+      if (gamepad.xWasPressed()) { // reset position
+        resetPosition();
+      }
+      if (gamepad.yWasPressed()) { // home turret
+        robot.scoringSystem.homeTurret();
+      }
+      // todo turret offsets
+
+    } else if (gamepad.left_trigger >= 0.5) { // ALT
+
+    } else { // NORMAL
+      if (gamepad.leftBumperWasPressed()) { // set full
+        robot.scoringSystem.setFull();
+      }
+      if (gamepad.rightBumperWasPressed()) { // shoot
+        robot.scoringSystem.shoot();
+      }
+      if (gamepad.aWasPressed()) { // switch target
+        robot.scoringSystem.switchTarget();
+      }
+      if (gamepad.bWasPressed()) { // eject all
+        robot.scoringSystem.eject();
+      }
+      if (gamepad.xWasPressed()) { // toggle flower ramp
+        switch (robot.flowerRamp.getState()) {
+          case STARTING:
+            robot.flowerRamp.setState(FlowerRamp.State.DEPLOYED);
+            break;
+
+          case DEPLOYED:
+            robot.flowerRamp.setState(FlowerRamp.State.STOWED);
+            break;
+
+          case STOWED:
+            robot.flowerRamp.setState(FlowerRamp.State.STARTING);
+            break;
+        }
+      }
+      if (gamepad.yWasPressed()) { // eject intake
+        robot.scoringSystem.ejectIntake();
+      }
+    }
   }
 }

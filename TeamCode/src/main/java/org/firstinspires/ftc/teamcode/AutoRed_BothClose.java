@@ -8,17 +8,17 @@ import org.firstinspires.ftc.teamcode.types.AllianceColor;
 import org.firstinspires.ftc.teamcode.types.OpModeType;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;
 
-@Autonomous(name = "🟦 Auto Blue Close", group = "Comp")
-public class AutoBlue extends OpMode {
+@Autonomous(name = "🟥 Auto Red Both Close", group = "Comp")
+public class AutoRed_BothClose extends OpMode {
   private AutoProgram program;
 
   @Override
   public void init() {
     OpModeInfo.type = OpModeType.AUTO;
-    OpModeInfo.color = AllianceColor.BLUE;
+    OpModeInfo.color = AllianceColor.RED;
     OpModeInfo.robotLoaded = true;
 
-    program = new AutoProgram(hardwareMap, telemetry);
+    program = new AutoProgram(hardwareMap, telemetry, AutoProgram.AutoType.BOTH_CLOSE);
     program.init();
   }
 
@@ -40,6 +40,7 @@ public class AutoBlue extends OpMode {
   @Override
   public void stop() {
     program.stop();
+
     OpModeInfo.robotLoaded = false;
   }
 }

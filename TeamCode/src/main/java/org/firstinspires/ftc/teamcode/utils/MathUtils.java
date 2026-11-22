@@ -158,22 +158,18 @@ public class MathUtils {
   }
 
   /**
-   * Converts a number of ticks (from an encoder) to an angle of a given unit
+   * Converts a number of ticks (from an encoder) to an angle in degrees
    *
    * @param ticks the number of ticks to convert to an angle
    * @param ticksPerRev the number of ticks in one full rotation
-   * @param unit the unit to convert the ticks to
-   * @return the provided number of ticks, converted into the provided angle unit
+   * @return the provided number of ticks, converted into degrees
    */
-  public static double ticksToAngleUnits(int ticks, double ticksPerRev, AngleUnit unit) {
-    if (Double.isNaN(ticksPerRev)
-        || Double.isInfinite(ticksPerRev)
-        || ticksPerRev == 0.0
-        || unit == null) {
-      throw new IllegalArgumentException("Ticks per rev must be valid, and unit must not be null");
+  public static double ticksToDegrees(int ticks, double ticksPerRev) {
+    if (Double.isNaN(ticksPerRev) || Double.isInfinite(ticksPerRev) || ticksPerRev == 0.0) {
+      throw new IllegalArgumentException("Ticks per rev must be valid");
     }
 
-    return unit.fromDegrees(ticks / ticksPerRev * 360.0);
+    return ticks / ticksPerRev * 360.0;
   }
 
   /**

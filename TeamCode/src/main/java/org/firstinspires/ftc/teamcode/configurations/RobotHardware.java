@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.configurations;
 
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.FlowerRamp;
 import org.firstinspires.ftc.teamcode.interfaces.System;
 import org.firstinspires.ftc.teamcode.pedro.Constants;
@@ -14,10 +15,11 @@ public class RobotHardware implements System {
   public final FlowerRamp flowerRamp;
   public final Follower follower;
 
-  public RobotHardware(HardwareMap hwMap) {
+  public RobotHardware(HardwareMap hwMap, Telemetry telemetry) {
     this.scoringSystem =
         new ScoringSystem(
             hwMap,
+            telemetry,
             "Intake",
             "Transfer",
             "TransferSensor",

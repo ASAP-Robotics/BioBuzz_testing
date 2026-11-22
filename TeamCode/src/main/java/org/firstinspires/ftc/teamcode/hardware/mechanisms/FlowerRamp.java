@@ -13,18 +13,25 @@ import org.firstinspires.ftc.teamcode.types.SystemReport;
 @Configurable
 public class FlowerRamp implements MonitoredSystem, System {
   public enum State {
+    /** Keeps the intake ramp within the starting configuration limits */
+    STARTING,
+    /** Keeps the intake ramp up and out of the way of shooting, etc. */
     STOWED,
+    /** Deploys the intake ramp so the robot can intake from the flowers */
     DEPLOYED
   }
 
   public static boolean TELEMETRY_ENABLE = false;
-  public static double STOWED_POS = 0.0; // todo tune
-  public static double DEPLOYED_POS = 60.0; // todo tune
+  public static double STARTING_POS = 200.0;
+  public static double STOWED_POS = 120.0;
+  public static double DEPLOYED_POS = 5.0;
+  public static double RIGHT_OFFSET = -5.0;
+  public static double LEFT_OFFSET = 15.0;
 
   private final Axon right, left;
   private final TelemetryManager tlm;
 
-  private State state = State.STOWED;
+  private State state = State.STARTING;
 
   public FlowerRamp(
       HardwareMap hwMap,
@@ -113,6 +120,10 @@ public class FlowerRamp implements MonitoredSystem, System {
   /** Handles state-specific behavior */
   private void updateStateBehavior() {
     switch (state) {
+      case STARTING:
+        setPositions(STARTING_POS);
+        break;
+
       case STOWED:
         setPositions(STOWED_POS);
         break;
@@ -130,8 +141,8 @@ public class FlowerRamp implements MonitoredSystem, System {
    */
   private void setPositions(double positionDegrees) {
     // todo check inversion; maybe invert in servo firmware?
-    right.setPosition(positionDegrees);
-    left.setPosition(positionDegrees);
+    right.setPosition(positionDegrees + RIGHT_OFFSET);
+    left.setPosition(positionDegrees + LEFT_OFFSET);
   }
 
   private void updateTelemetry() {

@@ -25,7 +25,7 @@ public abstract class CommonProgram implements System {
       throw new IllegalArgumentException("Hardware map and telemetry must not be null");
     }
     this.bulkCacher = new BulkCachingHelper(hwMap);
-    this.robot = new RobotHardware(hwMap);
+    this.robot = new RobotHardware(hwMap, telemetry);
     this.telemetry = telemetry;
     this.panelsTelemetry = PanelsTelemetry.INSTANCE.getTelemetry();
     this.loopTimeTracker = new LoopTimeTracker();

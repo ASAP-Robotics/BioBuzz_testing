@@ -12,10 +12,10 @@ import org.firstinspires.ftc.teamcode.types.SystemStatus;
 @Configurable
 public class Transfer extends SpinningThing {
   public enum State {
-    DISABLED(0.0, 0.0, 8, false),
-    INTAKING(1, 383, 8, true),
-    EJECTING(-0.7, -268, 6, true),
-    SHOOTING(1, 383, 8, false);
+    DISABLED(0.0, 0.0, 6, false),
+    INTAKING(1, 206, 6, true),
+    EJECTING(-0.7, -144, 4, true),
+    SHOOTING(1, 206, 6, false);
 
     State(
         double motorPower, double targetMinRpm, double targetMaxCurrent, boolean blockerDeployed) {
