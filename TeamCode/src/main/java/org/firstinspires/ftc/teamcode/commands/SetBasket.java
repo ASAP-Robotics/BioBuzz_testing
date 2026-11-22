@@ -6,14 +6,12 @@ import com.pedropathing.ivy.behaviors.BlockedBehavior;
 import com.pedropathing.ivy.behaviors.ConflictBehavior;
 import com.pedropathing.ivy.behaviors.EndCondition;
 import com.pedropathing.ivy.behaviors.InterruptedBehavior;
-
+import java.util.Collections;
+import java.util.Set;
 import org.firstinspires.ftc.teamcode.configurations.RobotHardware;
 import org.firstinspires.ftc.teamcode.systems.ScoringSystem;
 
-import java.util.Collections;
-import java.util.Set;
-
-/** Command to set which basket to aim at*/
+/** Command to set which basket to aim at */
 public class SetBasket implements Command {
   private final RobotHardware robot;
   private final ScoringSystem.Basket basket;

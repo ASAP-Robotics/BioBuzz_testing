@@ -4,7 +4,6 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import org.firstinspires.ftc.teamcode.opmodetypes.AutoProgram;
-import org.firstinspires.ftc.teamcode.paths.AutoPaths;
 import org.firstinspires.ftc.teamcode.types.AllianceColor;
 import org.firstinspires.ftc.teamcode.types.OpModeType;
 import org.firstinspires.ftc.teamcode.utils.OpModeInfo;

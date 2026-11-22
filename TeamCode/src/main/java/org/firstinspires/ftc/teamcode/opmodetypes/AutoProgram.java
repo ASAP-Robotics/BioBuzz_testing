@@ -39,7 +39,8 @@ public class AutoProgram extends CommonProgram {
         break;
 
       default:
-        this.pathing = paths.getCloseAuto();;
+        this.pathing = paths.getCloseAuto();
+        ;
         RobotPose.robotPose = paths.getCloseAutoStart();
         break;
     }

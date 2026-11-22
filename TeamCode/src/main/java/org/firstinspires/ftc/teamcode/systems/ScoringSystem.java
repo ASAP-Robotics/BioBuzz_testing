@@ -7,7 +7,6 @@ import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.math.Pose;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.util.ElapsedTime;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.teamcode.constants.BasketPositions;
@@ -73,6 +72,7 @@ public class ScoringSystem implements System {
   private final LookupTable lookupTable = new LookupTable(LookupTableContents.TABLE_CONTENTS);
   private final ElapsedTime stateTime;
   private final TelemetryManager tlm;
+
   /** Driver station telemetry */
   private final Telemetry telemetry;
 
@@ -202,27 +202,21 @@ public class ScoringSystem implements System {
     setState(State.SHOOTING_BACKUP);
   }
 
-  /**
-   * Cancels the active shot
-   */
+  /** Cancels the active shot */
   public void cancelShot() {
     if (state != State.SHOT_QUEUED && state != State.SHOOTING) return;
 
     setState(State.INTAKING);
   }
 
-  /**
-   * Cancels or reverses setting the state as full
-   */
+  /** Cancels or reverses setting the state as full */
   public void setNotFull() {
     if (state != State.FULL) return;
 
     setState(State.INTAKING);
   }
 
-  /**
-   * Homes the turret. Use with caution, as a backup
-   */
+  /** Homes the turret. Use with caution, as a backup */
   public void homeTurret() {
     turret.home();
   }
@@ -353,10 +347,10 @@ public class ScoringSystem implements System {
   /** Handles aiming at the target, either automatically or manually */
   private void aimAtTarget() {
     if (aimingMode == AimingMode.AUTOMATIC) {
-      double robotHeadingDegrees = AngleUnit.DEGREES.fromRadians(aimingCalculator.getPosition().heading());
+      double robotHeadingDegrees =
+          AngleUnit.DEGREES.fromRadians(aimingCalculator.getPosition().heading());
       turret.setPosition(
-          robotHeadingDegrees - aimingCalculator.getHeading(),
-          state != State.SHOOTING);
+          robotHeadingDegrees - aimingCalculator.getHeading(), state != State.SHOOTING);
       LookupTable.Entry entry = lookupTable.getKeyInterpolate(aimingCalculator.getDistance());
       flywheel.setTargetRpm(entry.value1);
     } else {
@@ -373,6 +367,7 @@ public class ScoringSystem implements System {
 
   /**
    * Sets which basket the scoring system will aim at
+   *
    * @param basket the basket to aim at, either close or far
    */
   public void setBasket(Basket basket) {

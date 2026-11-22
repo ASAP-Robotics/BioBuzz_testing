@@ -165,9 +165,7 @@ public class MathUtils {
    * @return the provided number of ticks, converted into degrees
    */
   public static double ticksToDegrees(int ticks, double ticksPerRev) {
-    if (Double.isNaN(ticksPerRev)
-        || Double.isInfinite(ticksPerRev)
-        || ticksPerRev == 0.0) {
+    if (Double.isNaN(ticksPerRev) || Double.isInfinite(ticksPerRev) || ticksPerRev == 0.0) {
       throw new IllegalArgumentException("Ticks per rev must be valid");
     }
 

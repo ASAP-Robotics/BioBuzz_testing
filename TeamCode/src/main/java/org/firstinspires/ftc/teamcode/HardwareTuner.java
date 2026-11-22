@@ -6,7 +6,6 @@ import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
-
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.FlowerRamp;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Flywheel;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.Intake;
@@ -42,7 +41,8 @@ public class HardwareTuner extends OpMode {
     OpModeInfo.color = AllianceColor.RED;
     OpModeInfo.type = OpModeType.TELEOP;
     OpModeInfo.robotLoaded = false;
-    this.ramp = new FlowerRamp(hardwareMap, "RampRight", "RampRightEncoder", "RampLeft", "RampLeftEncoder");
+    this.ramp =
+        new FlowerRamp(hardwareMap, "RampRight", "RampRightEncoder", "RampLeft", "RampLeftEncoder");
     this.turret = new Turret(hardwareMap, "Turret", "TurretSensor");
     this.flywheel = new Flywheel(hardwareMap, "Flywheel");
     this.intake = new Intake(hardwareMap, "Intake");

@@ -1,7 +1,6 @@
 /** Copyright 2026 ASAP Robotics (FTC Team 22029). See LICENCE and NOTICE files for more details. */
 package org.firstinspires.ftc.teamcode.paths;
 
-import static com.pedropathing.ivy.groups.Groups.parallel;
 import static com.pedropathing.ivy.groups.Groups.sequential;
 import static com.pedropathing.ivy.pedro.PedroCommands.follow;
 
@@ -11,7 +10,6 @@ import com.pedropathing.ivy.Command;
 import com.pedropathing.ivy.commands.Commands;
 import com.pedropathing.math.Pose;
 import com.pedropathing.paths.Path;
-
 import org.firstinspires.ftc.teamcode.commands.SetBasket;
 import org.firstinspires.ftc.teamcode.commands.SetFlowerRamp;
 import org.firstinspires.ftc.teamcode.commands.Shoot;
@@ -52,12 +50,14 @@ public class AutoPaths {
             : PoseFactory.degrees().rotateAround(70.75, 70.75, 180.0);
 
     this.closeBasket =
-        OpModeInfo.color == AllianceColor.RED ?
-            ScoringSystem.Basket.CLOSE : ScoringSystem.Basket.FAR;
+        OpModeInfo.color == AllianceColor.RED
+            ? ScoringSystem.Basket.CLOSE
+            : ScoringSystem.Basket.FAR;
 
     this.farBasket =
-        OpModeInfo.color == AllianceColor.RED ?
-            ScoringSystem.Basket.FAR : ScoringSystem.Basket.CLOSE;
+        OpModeInfo.color == AllianceColor.RED
+            ? ScoringSystem.Basket.FAR
+            : ScoringSystem.Basket.CLOSE;
 
     this.robot = r;
 
@@ -98,8 +98,11 @@ public class AutoPaths {
   }
 
   protected Path driveToEmptyFlower1() {
-    return Paths.curve(shootClose, shootClose_flower_control_1, shootClose_flower_control_2, inFrontOfFlower).linear(shootClose, inFrontOfFlower);
+    return Paths.curve(
+            shootClose, shootClose_flower_control_1, shootClose_flower_control_2, inFrontOfFlower)
+        .linear(shootClose, inFrontOfFlower);
   }
+
   protected Path driveToEmptyFlower2() {
     return Paths.line(inFrontOfFlower, intakeFromFlower).constant(intakeFromFlower);
   }
@@ -109,11 +112,15 @@ public class AutoPaths {
   }
 
   protected Path driveToShoot2_close_2() {
-    return Paths.curve(inFrontOfFlower, shootClose_flower_control_2, shootClose_flower_control_1, shootClose).linear(inFrontOfFlower, shootClose);
+    return Paths.curve(
+            inFrontOfFlower, shootClose_flower_control_2, shootClose_flower_control_1, shootClose)
+        .linear(inFrontOfFlower, shootClose);
   }
 
   protected Path driveToShoot2_far_2() {
-    return Paths.curve(inFrontOfFlower, flower_shootFar_control_1, flower_shootFar_control_2, shootFar).linear(inFrontOfFlower, shootFar);
+    return Paths.curve(
+            inFrontOfFlower, flower_shootFar_control_1, flower_shootFar_control_2, shootFar)
+        .linear(inFrontOfFlower, shootFar);
   }
 
   protected Path driveToPark_fromClose() {
@@ -156,7 +163,8 @@ public class AutoPaths {
   }
 
   /**
-   * Gets a Command containing the pathing and controls for the "close" Auto, shooting far for the 2nd shot
+   * Gets a Command containing the pathing and controls for the "close" Auto, shooting far for the
+   * 2nd shot
    *
    * @return the "Close" auto that shoots at the other side
    */

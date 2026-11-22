@@ -3,7 +3,6 @@ package org.firstinspires.ftc.teamcode.configurations;
 
 import com.pedropathing.follower.Follower;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-
 import org.firstinspires.ftc.robotcore.external.Telemetry;
 import org.firstinspires.ftc.teamcode.hardware.mechanisms.FlowerRamp;
 import org.firstinspires.ftc.teamcode.interfaces.System;

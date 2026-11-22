@@ -22,7 +22,7 @@ public class TeleOpProgram extends CommonProgram {
 
   @Override
   public void start() {
-    //resetPosition();
+    // resetPosition();
 
     super.start();
   }
